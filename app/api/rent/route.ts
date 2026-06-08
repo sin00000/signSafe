@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       const url = new URL(baseUrl);
       url.searchParams.set('serviceKey', apiKey);
       url.searchParams.set('LAWD_CD',   lawdCd);
-      url.searchParams.set('DEAL_YM',   month);
+      url.searchParams.set('DEAL_YMD',  month);
       url.searchParams.set('numOfRows', '1000');
       url.searchParams.set('pageNo',    '1');
 

@@ -150,7 +150,7 @@ export default function Page() {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <AppHeader />
-        <div style={{ padding: '10px 16px 0', maxWidth: 680, margin: '0 auto', width: '100%', flexShrink: 0 }}>
+        <div style={{ padding: '10px 16px 0', flexShrink: 0 }}>
           <GuideToolsBar result={result} />
         </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
