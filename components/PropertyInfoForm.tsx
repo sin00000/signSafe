@@ -198,6 +198,9 @@ export default function PropertyInfoForm({ form, onChange, status, onSkip }: Pro
             placeholder="예: 마포구 서교동, 강남구 역삼동"
             className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] focus:outline-none focus:border-[#111] transition-colors"
           />
+          <p className="text-[10px] text-[#888] mt-1 leading-relaxed">
+            "구 + 동"까지만 입력하면 충분해요. (예: 강남구 역삼동) 번지·건물명·우편번호는 적지 않아도 결과는 동일합니다.
+          </p>
           {addressWarning
             ? <p className="text-[11px] text-[#CC1100] mt-1 font-medium">{addressWarning}</p>
             : geocoding
