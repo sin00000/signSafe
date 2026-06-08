@@ -62,8 +62,14 @@ export async function GET(request: NextRequest) {
     canInsure:        parseBool(canInsureStr),
   };
 
-  /* ── 최근 4개월 순차 조회 ─────────── */
-  const months = getPreviousMonths(dealYm, 4);
+  /* ── 최근 4개월 순차 조회 ───────────
+   * 실거래가 데이터는 1~1.5개월의 신고 지연이 있어 미래 월에는 데이터가 없다.
+   * "계약 예정월"이 현재보다 미래라면, 비교 기준을 현재 시점의 최신 데이터로 당겨와
+   * 검색 결과가 0건이 되는 것을 방지한다 (계약은 미래에 해도 시세는 최신 기준이 더 유의미). */
+  const now = new Date();
+  const currentYm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const anchorYm = dealYm > currentYm ? currentYm : dealYm;
+  const months = getPreviousMonths(anchorYm, 4);
   const allTransactions: ReturnType<typeof parseRentXml> = [];
   const searchedMonths: string[] = [];
 
