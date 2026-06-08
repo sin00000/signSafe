@@ -114,7 +114,9 @@ export function PriceCompareCalc({
           />
           {form.lawdCd
             ? <p className="text-[11px] text-[#009688] mt-1 font-bold">✓ {addr.match(/[가-힣]+(구|시|군)/)?.[0] ?? '지역'} 인식됨</p>
-            : addr.length > 3 && <p className="text-[11px] text-[#CC1100] mt-1 font-medium">구·시·군 이름을 포함해 입력하세요</p>}
+            : addr.length > 3
+              ? <p className="text-[11px] text-[#CC1100] mt-1 font-medium">구·시·군 이름을 포함해 입력하세요</p>
+              : <p className="text-[10px] text-[#888] mt-1 leading-relaxed">"구 + 동"까지만 입력하면 충분해요. (예: 강남구 역삼동) 번지·건물명·우편번호는 적지 않아도 결과는 동일합니다.</p>}
         </div>
         <NumInput label="내 보증금" value={form.deposit} onChange={v => onFormChange(set(form, { deposit: v }))} placeholder="예: 20,000" />
         <div>
