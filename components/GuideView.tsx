@@ -264,14 +264,14 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                       {adone && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
                     </button>
                     <div style={{ flex: 1 }}>
-                      {adone && (
-                        <div style={{ fontSize: 10, fontWeight: 900, color: '#009688', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>
-                          완료
-                        </div>
-                      )}
                       <p style={{ fontSize: 14, fontWeight: 600, color: adone ? '#009688' : '#111', lineHeight: 1.65, transition: 'all .15s' }}>
-                        {adone ? a.why : a.text}
+                        {a.text}
                       </p>
+                      {adone && (
+                        <p style={{ fontSize: 12, color: '#009688', lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: '1px dashed #A8E6DF' }}>
+                          {a.why}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
