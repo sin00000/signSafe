@@ -143,6 +143,8 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
             color: isDone ? accent : '#111',
             wordBreak: 'keep-all', lineHeight: 1.3,
             cursor: 'pointer',
+            textDecoration: isDone ? 'line-through' : 'none',
+            textDecorationColor: accent,
           }}
         >
           {check.q}

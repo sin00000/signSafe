@@ -16,7 +16,7 @@ export default function StartScreen({ onStart }: Props) {
 
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-xl">
-          <p className="text-[15px] text-[#555] mb-2">처음으로 집 알아보는 게 어려울 땐</p>
+          <p className="text-[20px] font-black mb-2" style={{ color: '#009688' }}>처음으로 집 알아보는 게 어려울 땐</p>
           <h1 className="text-4xl md:text-5xl font-black text-[#111] leading-tight tracking-tight mb-6">
             전세사기 예방<br />진단 서비스
           </h1>
