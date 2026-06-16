@@ -16,13 +16,10 @@ export default function StartScreen({ onStart }: Props) {
 
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-xl">
-          <div className="text-xs font-bold text-[#009688] tracking-widest uppercase mb-4">전세 계약 위험 점검 서비스</div>
-          <h1 className="text-4xl md:text-5xl font-black text-[#111] leading-tight tracking-tight mb-3">
-            처음으로 집 알아보는 게 어려워!
+          <p className="text-[15px] text-[#555] mb-2">처음으로 집 알아보는 게 어려울 땐</p>
+          <h1 className="text-4xl md:text-5xl font-black text-[#111] leading-tight tracking-tight mb-6">
+            전세사기 예방<br />진단 서비스
           </h1>
-          <p className="text-[15px] text-[#555] leading-relaxed mb-6">
-            계약서 서명 전 확인해야 할 항목을<br />단계별로 안내합니다.
-          </p>
 
           {/* 색상 범례 */}
           <div className="flex items-center gap-4 mb-10">
