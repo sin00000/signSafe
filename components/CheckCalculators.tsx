@@ -1,9 +1,24 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FormData, RentAnalysisResult, AnalysisStatus } from '@/types/rent';
-import { extractLawdCd } from '@/lib/lawdCodeMap';
 import { formatWon, manWonToKorean } from '@/lib/formatMoney';
 import { formatYm } from '@/lib/dateUtils';
+
+declare global {
+  interface Window {
+    daum?: {
+      Postcode: new (options: {
+        oncomplete: (data: {
+          zonecode: string;
+          sido: string;
+          sigungu: string;
+          bname: string;
+          bcode: string;
+        }) => void;
+      }) => { open: () => void };
+    };
+  }
+}
 
 /* ── 공용 만원 입력 (콤마 표시) ─────────────────────────────── */
 function NumInput({
@@ -52,7 +67,7 @@ function NumInput({
 function CalcBox({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div onClick={e => e.stopPropagation()}
-      className="border-2 border-dashed border-[#009688] rounded-lg p-3.5 bg-[#F0FAFA] flex flex-col gap-3"
+      className="border-2 border-dashed border-[#009688] rounded-lg p-3.5 bg-white flex flex-col gap-3"
     >
       <div className="text-[13px] font-black text-[#009688] tracking-tight">{title}</div>
       {children}
@@ -85,16 +100,32 @@ export function PriceCompareCalc({
   status: AnalysisStatus;
   onRun: (f: FormData) => void;
 }) {
-  const [addr, setAddr] = useState(form.address);
   const [showDetail, setShowDetail] = useState(!!form.area || !!form.floor);
   const [pyeong, setPyeong] = useState<number | null>(form.area ? Math.round((form.area / 3.3058) * 10) / 10 : null);
+  const scriptLoadedRef = useRef(false);
 
   const ready = !!form.lawdCd && !!form.deposit && !!form.dealYm;
 
-  const handleAddr = (v: string) => {
-    setAddr(v);
-    const lawdCd = extractLawdCd(v);
-    onFormChange(set(form, { address: v, lawdCd }));
+  useEffect(() => {
+    if (scriptLoadedRef.current || window.daum?.Postcode) return;
+    scriptLoadedRef.current = true;
+    const s = document.createElement('script');
+    s.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    s.async = true;
+    document.head.appendChild(s);
+  }, []);
+
+  const openPostcode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.daum?.Postcode) return;
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        const lawdCd = data.bcode.substring(0, 5);
+        const dongName = data.bname;
+        const address = [data.sido, data.sigungu, data.bname].filter(Boolean).join(' ');
+        onFormChange(set(form, { address, lawdCd, dongName }));
+      },
+    }).open();
   };
 
   const handlePyeong = (v: number | null) => {
@@ -106,17 +137,17 @@ export function PriceCompareCalc({
     <CalcBox title="우리 동네 전세 시세 비교">
       <div className="grid grid-cols-2 gap-2.5">
         <div className="col-span-2">
-          <label className="text-[11px] font-black text-[#111] block mb-1">주소 <span className="text-[10px] text-[#888] font-normal">(구 단위, 예: 마포구)</span></label>
-          <input
-            type="text" value={addr} onChange={e => handleAddr(e.target.value)}
-            placeholder="예: 마포구 서교동" onClick={e => e.stopPropagation()}
-            className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] focus:outline-none focus:border-[#009688] transition-colors"
-          />
+          <label className="text-[11px] font-black text-[#111] block mb-1">주소</label>
+          <button
+            type="button" onClick={openPostcode}
+            className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] text-left transition-colors hover:border-[#009688] focus:outline-none focus:border-[#009688]"
+            style={{ background: '#fff', color: form.address ? '#111' : '#AAA', fontWeight: form.address ? 700 : 400 }}
+          >
+            {form.address || '우편번호로 주소 검색'}
+          </button>
           {form.lawdCd
-            ? <p className="text-[11px] text-[#009688] mt-1 font-bold">{addr.match(/[가-힣]+(구|시|군)/)?.[0] ?? '지역'} 인식됨</p>
-            : addr.length > 3
-              ? <p className="text-[11px] text-[#CC1100] mt-1 font-medium">구·시·군 이름을 포함해 입력하세요</p>
-              : <p className="text-[10px] text-[#888] mt-1 leading-relaxed">"구 + 동"까지만 입력하면 충분해요. (예: 강남구 역삼동) 번지·건물명·우편번호는 적지 않아도 결과는 동일합니다.</p>}
+            ? <p className="text-[11px] text-[#009688] mt-1 font-bold">{form.dongName ?? form.address.match(/[가-힣]+(구|시|군)/)?.[0]} 인식됨</p>
+            : <p className="text-[10px] text-[#888] mt-1">버튼을 눌러 우편번호로 검색하세요</p>}
         </div>
         <NumInput label="내 보증금" value={form.deposit} onChange={v => onFormChange(set(form, { deposit: v }))} placeholder="예: 20,000" />
         <div>
@@ -175,6 +206,9 @@ export function PriceCompareCalc({
             tone={result.depositRatio != null && result.depositRatio - 100 >= 30 ? 'danger' : result.depositRatio != null && result.depositRatio - 100 >= 10 ? 'caution' : 'safe'}
           />
           <p className="text-[11px] text-[#888] leading-relaxed">{formatYm(result.dealYm)} 기준 · 거래 {result.transactionCount}건 (전세 {result.jeonseCount}건)</p>
+          <p className="text-[10px] text-[#AAA] leading-relaxed">
+            {form.dongName ? `${form.dongName} 단위로 비교했습니다.` : '구 단위로 비교했습니다.'} 같은 동 거래가 10건 미만이면 구 전체로 넓혀 비교합니다.
+          </p>
         </div>
       )}
       {status === 'noData' && (
