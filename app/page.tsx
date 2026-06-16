@@ -119,8 +119,6 @@ export default function Page() {
     setPhase('start'); setForm(DEFAULT_FORM); setResult(null); setStatus('idle'); setErrorMsg('');
   };
 
-  if (phase === 'start') return <StartScreen onStart={() => setPhase('guide')} />;
-
   const totalChecks = CHECKS_BY_STEP.flat().length;
   const donePct = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
 
@@ -144,6 +142,8 @@ export default function Page() {
     animRef.current = requestAnimationFrame(step);
     return () => { if (animRef.current !== null) cancelAnimationFrame(animRef.current); };
   }, [donePct]);
+
+  if (phase === 'start') return <StartScreen onStart={() => setPhase('guide')} />;
 
   const AppHeader = () => (
     <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
