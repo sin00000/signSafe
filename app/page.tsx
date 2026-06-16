@@ -123,6 +123,28 @@ export default function Page() {
 
   const totalChecks = CHECKS_BY_STEP.flat().length;
   const donePct = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
+
+  const [displayPct, setDisplayPct] = useState(donePct);
+  const animRef = useRef<number | null>(null);
+  const prevPctRef = useRef(donePct);
+  useEffect(() => {
+    const from = prevPctRef.current;
+    const to = donePct;
+    prevPctRef.current = to;
+    if (from === to) return;
+    if (animRef.current !== null) cancelAnimationFrame(animRef.current);
+    const duration = 500;
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      setDisplayPct(Math.round(from + (to - from) * eased));
+      if (t < 1) animRef.current = requestAnimationFrame(step);
+    };
+    animRef.current = requestAnimationFrame(step);
+    return () => { if (animRef.current !== null) cancelAnimationFrame(animRef.current); };
+  }, [donePct]);
+
   const AppHeader = () => (
     <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -136,7 +158,7 @@ export default function Page() {
           </div>
         </div>
         <div style={{ fontSize: 34, fontWeight: 900, color: donePct > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.25)', letterSpacing: '-0.03em', flexShrink: 0, lineHeight: 1, minWidth: 64, textAlign: 'right' }}>
-          {donePct}%
+          {displayPct}%
         </div>
       </div>
       <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
