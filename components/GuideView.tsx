@@ -106,7 +106,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 
   return (
     <div style={{
-      marginBottom: 6, background: cardBg, borderRadius: 10, overflow: 'hidden',
+      marginBottom: 7, background: cardBg, borderRadius: 10, overflow: 'hidden',
       border: `1.5px solid ${cardBorder}`,
       boxShadow: open ? '0 3px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow .15s',
     }}>
