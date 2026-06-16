@@ -21,7 +21,13 @@ interface CalcProps {
 }
 
 const STATUS_COLOR: Record<CheckStatus, string> = {
-  danger: '#CC1100', caution: '#E6A800', done: '#009688', pending: '#BBBBBB',
+  danger: '#CC1100', caution: '#B07B00', done: '#007A6E', pending: '#999',
+};
+const STATUS_BG: Record<CheckStatus, string> = {
+  danger: '#FFF0EE', caution: '#FFF8E2', done: '#EDFAF7', pending: '#F5F5F5',
+};
+const STATUS_BORDER: Record<CheckStatus, string> = {
+  danger: '#F5C5BF', caution: '#E8D070', done: '#A8E6DF', pending: '#E0E0E0',
 };
 
 /* ── 가로 스텝 진행 바 (노선도 대체) ─────────────────────────── */
@@ -31,31 +37,31 @@ function StepBar({ confirmedIds, activeStep, onSelect }: {
   onSelect: (si: number) => void;
 }) {
   return (
-    <div style={{ borderBottom: '1px solid #E8E8E8', background: '#FAFAFA', overflowX: 'auto', flexShrink: 0 }}>
-      <div style={{ display: 'flex', padding: '0 8px', minWidth: 'max-content' }}>
+    <div style={{ borderBottom: '1px solid #E0E0E0', background: '#fff', overflowX: 'auto', flexShrink: 0 }}>
+      <div style={{ display: 'flex', padding: '0 6px', minWidth: 'max-content' }}>
         {STEP_NAMES.map((name, si) => {
           const done    = CHECKS_BY_STEP[si].every(c => confirmedIds.has(c.id));
           const partial = CHECKS_BY_STEP[si].some(c => confirmedIds.has(c.id));
           const active  = si === activeStep;
           return (
             <button key={si} onClick={() => onSelect(si)} style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '10px 12px', border: 'none', background: 'none',
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '9px 10px', border: 'none', background: 'none',
               cursor: 'pointer', flexShrink: 0, userSelect: 'none',
               borderBottom: active ? '2px solid #111' : '2px solid transparent',
               transition: 'border-color .15s',
             }}>
               <div style={{
-                width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                background: done ? '#009688' : partial ? '#E6A800' : '#E0E0E0',
+                width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+                background: done ? '#007A6E' : partial ? '#B07B00' : '#DEDEDE',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {done
-                  ? <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                  : <span style={{ fontSize: 8, fontWeight: 900, color: partial ? '#7A5900' : '#888' }}>{si + 1}</span>
+                  ? <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                  : <span style={{ fontSize: 8, fontWeight: 900, color: partial ? '#7A5900' : '#999' }}>{si + 1}</span>
                 }
               </div>
-              <span style={{ fontSize: 12, fontWeight: active ? 700 : 400, color: active ? '#111' : '#888', whiteSpace: 'nowrap' }}>{name}</span>
+              <span style={{ fontSize: 11, fontWeight: active ? 800 : 400, color: active ? '#111' : '#999', whiteSpace: 'nowrap' }}>{name}</span>
             </button>
           );
         })}
@@ -81,6 +87,8 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
   const isSkipped  = isDone && skipped.has(check.id);
   const status     = isDone ? 'done' : check.risk;
   const accent     = STATUS_COLOR[status];
+  const cardBg     = STATUS_BG[status];
+  const cardBorder = STATUS_BORDER[status];
   const calcRenderer = CALC_RENDERERS[check.id];
 
   const toggleAction = (i: number) => {
@@ -96,60 +104,53 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
     ? (isSkipped ? '건너뜀' : '완료')
     : check.risk === 'danger' ? '위험' : '주의';
 
-  const badgeBg = isDone
-    ? '#EBF9F7'
-    : check.risk === 'danger' ? '#FFF0EF' : '#FFF8E0';
-
   return (
     <div style={{
-      marginBottom: 6, background: '#fff', borderRadius: 8, overflow: 'hidden',
-      border: '1px solid #EBEBEB', borderLeft: `4px solid ${accent}`,
-      boxShadow: open ? '0 2px 8px rgba(0,0,0,0.06)' : 'none', transition: 'box-shadow .15s',
+      marginBottom: 6, background: cardBg, borderRadius: 10, overflow: 'hidden',
+      border: `1.5px solid ${cardBorder}`,
+      boxShadow: open ? '0 3px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow .15s',
     }}>
       {/* 접힌 헤더 — 60px 고정 */}
       <div onClick={onOpen} style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '0 14px', height: 60, cursor: 'pointer', userSelect: 'none',
       }}>
-        <span style={{ fontSize: 11, fontWeight: 900, color: '#BDBDBD', flexShrink: 0, width: 16, textAlign: 'center' }}>
+        <span style={{ fontSize: 10, fontWeight: 900, color: accent, opacity: 0.5, flexShrink: 0, width: 16, textAlign: 'center' }}>
           {check.itemIdx + 1}
         </span>
         <span style={{
           flex: 1, fontSize: 14, fontWeight: 700,
-          color: isDone ? '#009688' : '#111',
+          color: isDone ? accent : '#111',
           wordBreak: 'keep-all', lineHeight: 1.3,
         }}>
           {check.q}
         </span>
-        <span style={{
-          fontSize: 10, fontWeight: 900, padding: '3px 8px', borderRadius: 4, flexShrink: 0,
-          background: badgeBg, color: accent,
-        }}>
+        <span style={{ fontSize: 11, fontWeight: 800, color: accent, flexShrink: 0 }}>
           {badgeLabel}
         </span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#BDBDBD" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5 }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </div>
 
       {/* 펼친 내용 */}
       {open && (
-        <div style={{ borderTop: '1px solid #F0F0F0' }}>
+        <div style={{ borderTop: `1px solid ${cardBorder}` }}>
 
           {/* 설명 */}
           <div style={{
-            padding: '16px 18px', borderBottom: '1px dashed #EBEBEB',
-            background: isDone ? '#F8FFFE' : '#FAFAFA',
+            padding: '16px 18px', borderBottom: `1px dashed ${cardBorder}`,
+            background: isDone ? 'rgba(0,150,136,0.06)' : 'rgba(0,0,0,0.025)',
           }}>
             <div style={{
               fontSize: 11, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase',
-              color: isDone ? '#009688' : '#888', marginBottom: 8,
+              color: accent, marginBottom: 8,
             }}>
               {isDone ? '확인 완료' : '미확인 시 위험'}
             </div>
             <p style={{
               fontSize: 15, fontWeight: 600, lineHeight: 1.75, wordBreak: 'keep-all',
-              color: isDone ? '#00695C' : '#333',
+              color: isDone ? accent : '#222',
             }}>
               {isDone ? check.whyItMatters : check.consequence}
             </p>
@@ -157,7 +158,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 
           {/* 계산기 */}
           {calcRenderer && (
-            <div style={{ padding: '14px 16px', borderBottom: '1px dashed #EBEBEB' }}>
+            <div style={{ padding: '14px 16px', borderBottom: `1px dashed ${cardBorder}` }}>
               <div style={{
                 fontSize: 10, fontWeight: 900, color: '#009688', letterSpacing: '0.12em',
                 textTransform: 'uppercase', marginBottom: 10,
@@ -265,10 +266,11 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                 onToggle(check.id);
               }}
               style={{
-                marginTop: 16, width: '100%', padding: '11px', borderRadius: 6, fontSize: 13, fontWeight: 900,
+                marginTop: 16, width: '100%', padding: '12px', borderRadius: 8, fontSize: 13, fontWeight: 900,
                 border: 'none', cursor: 'pointer', transition: 'all .15s',
-                background: isDone ? '#F0F0F0' : '#111',
-                color: isDone ? '#888' : '#fff',
+                background: isDone ? 'rgba(0,0,0,0.06)' : accent,
+                color: isDone ? accent : '#fff',
+                letterSpacing: '-0.01em',
               }}
             >
               {isDone ? '확인 취소' : '이 항목 확인 완료'}
