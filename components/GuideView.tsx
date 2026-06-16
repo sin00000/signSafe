@@ -148,9 +148,6 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           {check.q}
         </span>
 
-        <span style={{ fontSize: 11, fontWeight: 800, color: accent, flexShrink: 0 }}>
-          {badgeLabel}
-        </span>
         <svg onClick={onOpen} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5, cursor: 'pointer' }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
@@ -172,7 +169,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
               {isDone ? '확인 완료' : '미확인 시 위험'}
             </div>
             <p style={{
-              fontSize: 15, fontWeight: 600, lineHeight: 1.75, wordBreak: 'keep-all',
+              fontSize: 15, fontWeight: 900, lineHeight: 1.75, wordBreak: 'keep-all',
               color: isDone ? accent : '#222',
             }}>
               {isDone ? check.whyItMatters : check.consequence}

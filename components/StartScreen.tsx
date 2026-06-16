@@ -20,9 +20,25 @@ export default function StartScreen({ onStart }: Props) {
           <h1 className="text-4xl md:text-5xl font-black text-[#111] leading-tight tracking-tight mb-4">
             전세 계약 전<br />위험 점검
           </h1>
-          <p className="text-[15px] text-[#555] leading-relaxed mb-10">
+          <p className="text-[15px] text-[#555] leading-relaxed mb-6">
             계약서 서명 전 확인해야 할 항목을<br />단계별로 안내합니다.
           </p>
+
+          {/* 색상 범례 */}
+          <div className="flex items-center gap-4 mb-10">
+            <div className="flex items-center gap-2">
+              <div style={{ width: 12, height: 12, borderRadius: 3, background: '#FFF0EE', border: '1.5px solid #F5C5BF', flexShrink: 0 }} />
+              <span className="text-[12px] font-bold text-[#CC1100]">위험</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 12, height: 12, borderRadius: 3, background: '#FFF8E2', border: '1.5px solid #E8D070', flexShrink: 0 }} />
+              <span className="text-[12px] font-bold text-[#B07B00]">주의</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div style={{ width: 12, height: 12, borderRadius: 3, background: '#EDFAF7', border: '1.5px solid #A8E6DF', flexShrink: 0 }} />
+              <span className="text-[12px] font-bold text-[#007A6E]">완료</span>
+            </div>
+          </div>
 
           <button
             onClick={onStart}
