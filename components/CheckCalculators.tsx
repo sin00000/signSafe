@@ -221,10 +221,11 @@ export function PriceCompareCalc({
         href="https://hogangnono.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-between mt-2 px-3 py-2 rounded-md border border-[#E0E0E0] bg-white hover:bg-[#F5F5F5] transition-colors no-underline"
+        className="flex items-center justify-between mt-2 px-3 py-2 rounded-md no-underline transition-opacity hover:opacity-80"
+        style={{ background: '#009688' }}
       >
-        <span className="text-[12px] font-bold text-[#333]">단지별 시세 더 보기 — 호갱노노</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <span className="text-[12px] font-bold text-white">단지별 시세 더 보기 — 호갱노노</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
           <polyline points="15 3 21 3 21 9"/>
           <line x1="10" y1="14" x2="21" y2="3"/>
