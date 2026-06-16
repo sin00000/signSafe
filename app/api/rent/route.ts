@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
   const canDateStr      = p.get('canGetFixedDate');
   const canInsureStr    = p.get('canInsure');
   const areaStr         = p.get('area');         // 전용면적(㎡) — 있으면 비슷한 평형끼리 비교해 정확도를 높임
+  const dongName        = p.get('dongName') ?? '';
 
   /* ── 검증 ─────────────────────────── */
   if (!propertyType || !lawdCd || !dealYm || !depositStr) {
@@ -99,13 +100,24 @@ export async function GET(request: NextRequest) {
 
   const base = { propertyType, address, lawdCd, dealYm, searchedMonths, userDeposit, userMonthlyRent };
 
+  // 동 단위 필터: 같은 법정동 거래만 먼저 추린다.
+  // "역삼1동"·"역삼2동" 같은 행정동 분리를 흡수하기 위해 끝의 숫자를 제거한 기본 이름으로 비교.
+  // 10건 미만이면 시군구 전체로 폴백해 표본 부족으로 인한 왜곡을 방지한다.
+  const DONG_MIN = 10;
+  let scopeTransactions = allTransactions;
+  if (dongName) {
+    const dongBase = dongName.replace(/\d+동$/, '동').trim();
+    const byDong = allTransactions.filter(t => t.dong.replace(/\d+동$/, '동').trim() === dongBase);
+    if (byDong.length >= DONG_MIN) scopeTransactions = byDong;
+  }
+
   // 전용면적이 입력된 경우, 평형이 비슷한(±20%) 거래만 추려 시세 비교의 정확도를 높인다.
   // 같은 동네라도 평형 차이가 크면 보증금 중앙값이 크게 달라지기 때문 — 단, 비슷한 거래가
-  // 너무 적으면(3건 미만) 표본이 부족해 오히려 왜곡되므로 전체 거래로 대체한다.
+  // 너무 적으면(3건 미만) 표본이 부족해 오히려 왜곡되므로 동 범위 거래로 대체한다.
   const userArea = areaStr ? parseFloat(areaStr) : null;
-  let comparableTransactions = allTransactions;
+  let comparableTransactions = scopeTransactions;
   if (userArea && userArea > 0) {
-    const similar = allTransactions.filter(t => t.area > 0 && Math.abs(t.area - userArea) / userArea <= 0.2);
+    const similar = scopeTransactions.filter(t => t.area > 0 && Math.abs(t.area - userArea) / userArea <= 0.2);
     if (similar.length >= 3) comparableTransactions = similar;
   }
 
