@@ -131,7 +131,7 @@ export default function Page() {
     prevPctRef.current = to;
     if (from === to) return;
     if (animRef.current !== null) cancelAnimationFrame(animRef.current);
-    const duration = 500;
+    const duration = 800;
     const start = performance.now();
     const step = (now: number) => {
       const t = Math.min((now - start) / duration, 1);
@@ -154,7 +154,7 @@ export default function Page() {
             <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{checkedIds.size} / {totalChecks} 항목</span>
           </div>
           <div style={{ height: 10, background: 'rgba(255,255,255,0.12)', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width .5s ease' }} />
+            <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
           </div>
         </div>
         <div style={{ fontSize: 34, fontWeight: 900, color: donePct > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.25)', letterSpacing: '-0.03em', flexShrink: 0, lineHeight: 1, minWidth: 64, textAlign: 'right' }}>
