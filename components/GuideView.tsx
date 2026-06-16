@@ -249,13 +249,6 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                 const adone = actionsDone.has(i);
                 return (
                   <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{
-                      width: 22, height: 22, borderRadius: '50%', flexShrink: 0, marginTop: 2,
-                      background: '#111', color: '#fff', fontSize: 11, fontWeight: 900,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {i + 1}
-                    </div>
                     <button onClick={e => { e.stopPropagation(); toggleAction(i); }} aria-label="할 일 완료 체크" style={{
                       width: 22, height: 22, borderRadius: 6, flexShrink: 0, marginTop: 2,
                       border: adone ? 'none' : '2px solid #CFCFCF', cursor: 'pointer',
