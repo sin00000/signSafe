@@ -111,24 +111,47 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
       boxShadow: open ? '0 3px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow .15s',
     }}>
       {/* 접힌 헤더 — 60px 고정 */}
-      <div onClick={onOpen} style={{
+      <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        padding: '0 14px', height: 60, cursor: 'pointer', userSelect: 'none',
+        padding: '0 14px', height: 60, userSelect: 'none',
       }}>
-        <span style={{ fontSize: 10, fontWeight: 900, color: accent, opacity: 0.5, flexShrink: 0, width: 16, textAlign: 'center' }}>
-          {check.itemIdx + 1}
-        </span>
-        <span style={{
-          flex: 1, fontSize: 14, fontWeight: 700,
-          color: isDone ? accent : '#111',
-          wordBreak: 'keep-all', lineHeight: 1.3,
-        }}>
+        {/* 직접 체크 버튼 — 카드 열지 않고도 완료 처리 */}
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            const allActions = new Set(check.actions.map((_, i) => i));
+            setActionsDone(isDone ? new Set() : allActions);
+            onToggle(check.id);
+          }}
+          aria-label="완료 체크"
+          style={{
+            width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+            border: isDone ? 'none' : `2px solid ${accent}`,
+            background: isDone ? accent : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', transition: 'all .15s', padding: 0,
+          }}
+        >
+          {isDone && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
+        </button>
+
+        {/* 제목 — 클릭하면 펼치기 */}
+        <span
+          onClick={onOpen}
+          style={{
+            flex: 1, fontSize: 16, fontWeight: 800,
+            color: isDone ? accent : '#111',
+            wordBreak: 'keep-all', lineHeight: 1.3,
+            cursor: 'pointer',
+          }}
+        >
           {check.q}
         </span>
+
         <span style={{ fontSize: 11, fontWeight: 800, color: accent, flexShrink: 0 }}>
           {badgeLabel}
         </span>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5 }}>
+        <svg onClick={onOpen} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5, cursor: 'pointer' }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </div>
