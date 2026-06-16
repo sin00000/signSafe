@@ -44,7 +44,7 @@ function CopyRow({ idx, text, copiedIdx, onCopy, accentColor, badge }: {
       <span className="text-[11px] font-black flex-shrink-0 mt-0.5" style={{ color: accentColor }}>{badge}</span>
       <p className="text-[13px] text-[#333] font-bold leading-snug flex-1" style={{ wordBreak: 'keep-all', overflowWrap: 'normal' }}>{text}</p>
       <button onClick={() => onCopy(idx, text)} className="text-[10px] text-[#888] flex-shrink-0 mt-0.5 transition-colors hover:opacity-70" style={{ color: copiedIdx === idx ? accentColor : '#888' }}>
-        {copiedIdx === idx ? '✓ 복사됨' : '복사'}
+        {copiedIdx === idx ? '복사됨' : '복사'}
       </button>
     </div>
   );
@@ -108,7 +108,7 @@ export default function GuideToolsBar({ result }: Props) {
                   className="text-[11px] font-bold border px-2.5 py-1 rounded transition-colors flex-shrink-0 cursor-pointer"
                   style={{ color: active.dim, borderColor: active.dim + '55' }}
                 >
-                  {copied?.tab === 'questions' && copied.idx === -1 ? '복사됨 ✓' : '전체 복사'}
+                  {copied?.tab === 'questions' && copied.idx === -1 ? '복사됨' : '전체 복사'}
                 </span>
               </div>
               {questions.map((q, i) => (
@@ -128,7 +128,7 @@ export default function GuideToolsBar({ result }: Props) {
                   className="text-[11px] font-bold border px-2.5 py-1 rounded transition-colors flex-shrink-0 cursor-pointer"
                   style={{ color: active.dim, borderColor: active.dim + '55' }}
                 >
-                  {copied?.tab === 'terms' && copied.idx === -1 ? '복사됨 ✓' : '전체 복사'}
+                  {copied?.tab === 'terms' && copied.idx === -1 ? '복사됨' : '전체 복사'}
                 </span>
               </div>
               {terms.map((term, i) => (
@@ -136,7 +136,7 @@ export default function GuideToolsBar({ result }: Props) {
                   onCopy={(idx, text) => copyOne('terms', idx, text)} accentColor={active.color} badge={`특약 ${i + 1}`} />
               ))}
               <p className="text-[11px] text-[#888] bg-white rounded p-3 border border-[#E0E0E0] mt-1">
-                ⚠ 특약 문구는 상황에 따라 달라질 수 있습니다. 실제 계약 전 공인중개사 또는 법무사와 확인하세요.
+                주의: 특약 문구는 상황에 따라 달라질 수 있습니다. 실제 계약 전 공인중개사 또는 법무사와 확인하세요.
               </p>
             </div>
           )}

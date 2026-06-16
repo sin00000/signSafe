@@ -5,7 +5,6 @@ import { currentYearMonth } from '@/lib/dateUtils';
 import { fetchRentAnalysis } from '@/lib/rentApi';
 import StartScreen from '@/components/StartScreen';
 import RiskResultCard from '@/components/RiskResultCard';
-import GuideToolsBar from '@/components/GuideToolsBar';
 import GuideView from '@/components/GuideView';
 import { CHECKS_BY_STEP } from '@/lib/checkData';
 
@@ -122,26 +121,30 @@ export default function Page() {
 
   if (phase === 'start') return <StartScreen onStart={() => setPhase('guide')} />;
 
-  /* ── 공통 헤더 — 타이틀 대신 진행률 지표 표시, 로고를 누르면 처음부터 ── */
   const totalChecks = CHECKS_BY_STEP.flat().length;
   const donePct = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
   const AppHeader = () => (
-    <header className="bg-[#111] text-white h-[56px] flex-shrink-0 px-5 flex items-center gap-4">
-      {/* 진행률 지표 — 얼마나 해결되었는지 */}
-      <div className="flex-1 max-w-[360px]">
-        <div className="flex items-baseline justify-between mb-1.5">
-          <span className="text-[11px] font-black tracking-tight text-white/90">계약 전 확인 진행률</span>
-          <span className="text-[12px] font-black text-[#5EEAD4]">{checkedIds.size} / {totalChecks} · {donePct}%</span>
+    <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>계약 전 확인 진행률</span>
+            <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{checkedIds.size} / {totalChecks} 항목</span>
+          </div>
+          <div style={{ height: 10, background: 'rgba(255,255,255,0.12)', borderRadius: 6, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width .5s ease' }} />
+          </div>
         </div>
-        <div className="h-[5px] bg-white/15 rounded-full overflow-hidden">
-          <div className="h-full bg-[#009688] rounded-full transition-[width] duration-500" style={{ width: `${donePct}%` }} />
+        <div style={{ fontSize: 34, fontWeight: 900, color: donePct > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.25)', letterSpacing: '-0.03em', flexShrink: 0, lineHeight: 1, minWidth: 64, textAlign: 'right' }}>
+          {donePct}%
         </div>
       </div>
-
-      {phase === 'result' && (
-        <button onClick={() => setPhase('guide')} className="text-[11px] font-bold text-white border border-white/30 px-3 py-1.5 rounded flex-shrink-0">← 체크리스트로</button>
-      )}
-      <button onClick={resetAll} className="text-[11px] font-bold text-white/70 hover:text-white px-2 py-1.5 rounded flex-shrink-0 transition-colors">처음부터</button>
+      <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+        {phase === 'result' && (
+          <button onClick={() => setPhase('guide')} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '5px 12px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>
+        )}
+        <button onClick={resetAll} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', border: 'none', padding: '5px 4px', background: 'none', cursor: 'pointer' }}>처음부터</button>
+      </div>
     </header>
   );
 
@@ -150,9 +153,6 @@ export default function Page() {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <AppHeader />
-        <div style={{ padding: '10px 16px 0', flexShrink: 0 }}>
-          <GuideToolsBar result={result} />
-        </div>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <GuideView
             confirmed={checkedIds}

@@ -113,7 +113,7 @@ export function PriceCompareCalc({
             className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] focus:outline-none focus:border-[#009688] transition-colors"
           />
           {form.lawdCd
-            ? <p className="text-[11px] text-[#009688] mt-1 font-bold">✓ {addr.match(/[가-힣]+(구|시|군)/)?.[0] ?? '지역'} 인식됨</p>
+            ? <p className="text-[11px] text-[#009688] mt-1 font-bold">{addr.match(/[가-힣]+(구|시|군)/)?.[0] ?? '지역'} 인식됨</p>
             : addr.length > 3
               ? <p className="text-[11px] text-[#CC1100] mt-1 font-medium">구·시·군 이름을 포함해 입력하세요</p>
               : <p className="text-[10px] text-[#888] mt-1 leading-relaxed">"구 + 동"까지만 입력하면 충분해요. (예: 강남구 역삼동) 번지·건물명·우편번호는 적지 않아도 결과는 동일합니다.</p>}
@@ -135,7 +135,7 @@ export function PriceCompareCalc({
         onClick={e => { e.stopPropagation(); setShowDetail(v => !v); }}
         className="text-[11px] font-bold text-[#009688] text-left hover:underline"
       >
-        {showDetail ? '▲ 상세 입력 닫기' : '▼ 상세 입력 — 면적·층수를 알려주면 더 정확해져요'}
+        {showDetail ? '상세 입력 닫기' : '상세 입력 — 면적·층수를 알려주면 더 정확해져요'}
       </button>
       {showDetail && (
         <div className="grid grid-cols-2 gap-2.5 -mt-1">
@@ -145,7 +145,7 @@ export function PriceCompareCalc({
       )}
       {showDetail && (form.area || form.floor) && (
         <p className="text-[11px] text-[#009688] font-bold leading-relaxed -mt-1">
-          ✓ 비슷한 평형의 거래만 골라 비교하므로 시세 비교 정확도가 올라가요{form.area ? ` (${pyeong}평 ≈ ${form.area}㎡ 기준)` : ''}.
+          비슷한 평형의 거래만 골라 비교하므로 시세 비교 정확도가 올라가요{form.area ? ` (${pyeong}평 ≈ ${form.area}㎡ 기준)` : ''}.
         </p>
       )}
 
@@ -200,7 +200,7 @@ export function HousePriceCalc({ form, onFormChange }: { form: FormData; onFormC
         placeholder="예: 50,000"
       />
       <p className="text-[11px] text-[#009688] font-bold leading-relaxed">
-        ✓ 입력하면 다음 단계 &apos;전세가율 계산&apos;에 자동으로 사용돼요.
+        입력하면 다음 단계 &apos;전세가율 계산&apos;에 자동으로 사용됩니다.
       </p>
     </CalcBox>
   );
