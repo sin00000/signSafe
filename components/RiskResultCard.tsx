@@ -138,13 +138,13 @@ function SafePointCard({ point }: { point: SafePoint }) {
         style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 10, padding: '11px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
       >
         <span style={{ fontSize: 11, fontWeight: 900, color: '#009688', flexShrink: 0, marginTop: 1 }}>✓</span>
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: '#0D3D35', lineHeight: '20pt' }}>{point.text}</span>
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: '#0D3D35', lineHeight: 1.55 }}>{point.text}</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#009688" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </button>
       {open && (
-        <p style={{ fontSize: 12, color: '#334', lineHeight: '20pt', padding: '0 14px 12px 33px', margin: 0 }}>{point.detail}</p>
+        <p style={{ fontSize: 12, color: '#334', lineHeight: 1.55, padding: '0 14px 12px 33px', margin: 0 }}>{point.detail}</p>
       )}
     </div>
   );
@@ -164,17 +164,17 @@ function RiskFactorCard({ factor }: { factor: { level: string; title: string; de
         <span style={{ fontSize: 11, fontWeight: 900, color, flexShrink: 0, marginTop: 1 }}>
           {factor.level === 'red' ? '!' : '⚠'}
         </span>
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: '#111', lineHeight: '20pt' }}>{factor.title}</span>
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.55 }}>{factor.title}</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </button>
       {open && (
         <div style={{ padding: '12px 14px 14px', background: '#fff', borderTop: `1px solid ${color}33` }}>
-          <p style={{ fontSize: 13, color: '#333', lineHeight: '22pt', margin: '0 0 12px' }}>{factor.description}</p>
+          <p style={{ fontSize: 13, color: '#333', lineHeight: 1.65, margin: '0 0 12px' }}>{factor.description}</p>
           <div style={{ background: `${color}11`, borderRadius: 6, padding: '10px 12px' }}>
             <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color, marginBottom: 4 }}>지금 해야 할 일</div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#111', lineHeight: '22pt', margin: 0 }}>{factor.action}</p>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#111', lineHeight: 1.65, margin: 0 }}>{factor.action}</p>
           </div>
         </div>
       )}
@@ -214,10 +214,10 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
               <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 11, color: '#009688', fontWeight: 900, flexShrink: 0, marginTop: 1 }}>✓</span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: '20pt' }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.55 }}>
                     {CHECKLIST_LABEL[item.id] ?? item.q}
                   </div>
-                  <p style={{ fontSize: 11, color: '#666', lineHeight: '18pt', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: 11, color: '#666', lineHeight: 1.6, margin: '2px 0 0' }}>
                     {CHECKED_SAFETY_MEANING[item.id] ?? item.whyItMatters}
                   </p>
                 </div>
@@ -238,10 +238,10 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
               <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 11, color: '#CC1100', fontWeight: 900, flexShrink: 0, marginTop: 1 }}>·</span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#333', lineHeight: '20pt' }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#333', lineHeight: 1.55 }}>
                     {CHECKLIST_LABEL[item.id] ?? item.q}
                   </div>
-                  <p style={{ fontSize: 11, color: '#888', lineHeight: '18pt', margin: '2px 0 0' }}>{item.consequence}</p>
+                  <p style={{ fontSize: 11, color: '#888', lineHeight: 1.6, margin: '2px 0 0' }}>{item.consequence}</p>
                 </div>
               </div>
             ))}
@@ -251,7 +251,7 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
 
       {/* 수치 분석 안내 */}
       <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 16 }}>
-        <p style={{ fontSize: 12, color: '#888', lineHeight: '20pt', margin: '0 0 10px' }}>
+        <p style={{ fontSize: 12, color: '#888', lineHeight: 1.55, margin: '0 0 10px' }}>
           체크리스트 2단계에서 <b style={{ color: '#333' }}>주소 · 보증금 · 계약월</b>을 입력하면
           주변 실거래가 기반 시세 비교와 전세가율 분석이 추가됩니다.
         </p>
@@ -341,8 +341,8 @@ export default function RiskResultCard({
           분석 결과 · {levelLabel}
           {result.status === 'noData' && <span style={{ marginLeft: 8, fontWeight: 700, color: '#999' }}>— 실거래 데이터 부족</span>}
         </div>
-        <h2 style={{ fontSize: 16, fontWeight: 900, color: '#111', lineHeight: '26pt', margin: '0 0 8px' }}>{result.riskTitle}</h2>
-        <p style={{ fontSize: 12, color: '#555', lineHeight: '20pt', margin: 0 }}>{result.riskMessage}</p>
+        <h2 style={{ fontSize: 16, fontWeight: 900, color: '#111', lineHeight: 1.35, margin: '0 0 8px' }}>{result.riskTitle}</h2>
+        <p style={{ fontSize: 12, color: '#555', lineHeight: 1.55, margin: 0 }}>{result.riskMessage}</p>
       </div>
 
       {/* 안전하다고 볼 수 있는 근거 (blue) */}
@@ -434,7 +434,7 @@ export default function RiskResultCard({
         <SectionLabel marker="근거" color="#777" label="이 결과가 나온 근거" />
         <ul style={{ listStyle: 'none', margin: '0 0 8px', background: '#FAFAFA', borderRadius: 8, padding: '12px 14px', border: '1px solid #E8E8E8', display: 'flex', flexDirection: 'column', gap: 6 }}>
           {result.reasonSummary.map((r, i) => (
-            <li key={i} style={{ display: 'flex', gap: 8, fontSize: 12, color: '#555', lineHeight: '20pt' }}>
+            <li key={i} style={{ display: 'flex', gap: 8, fontSize: 12, color: '#555', lineHeight: 1.55 }}>
               <span style={{ color: '#bbb', flexShrink: 0 }}>·</span>
               <span>{r}</span>
             </li>
@@ -446,7 +446,7 @@ export default function RiskResultCard({
           </p>
         )}
         {onBackToGuide && (
-          <p style={{ fontSize: 11, color: '#888', marginTop: 10, lineHeight: '18pt' }}>
+          <p style={{ fontSize: 11, color: '#888', marginTop: 10, lineHeight: 1.6 }}>
             계약 전 추가 확인 목록과 질문·특약 예시는 체크리스트 화면의 <b>부록</b>에서 확인하세요.{' '}
             <button onClick={onBackToGuide} style={{ color: '#009688', fontWeight: 800, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>
               체크리스트로 →

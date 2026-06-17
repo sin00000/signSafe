@@ -28,7 +28,7 @@ const GREEN_BORDER = '#B2DFDB';
 function HeroSection() {
   return (
     <div style={{ padding: '56px 0 52px', borderBottom: '2px solid #111' }}>
-      <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111', lineHeight: '44pt', letterSpacing: '-0.025em', marginBottom: 24, wordBreak: 'keep-all' }}>
+      <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: 24, wordBreak: 'keep-all' }}>
         처음으로 집 살 때<br />사기 안당하는<br />체크리스트
       </h1>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -39,7 +39,7 @@ function HeroSection() {
           '집 정보를 처음 접하는 분도 따라갈 수 있도록 각 항목마다 이유와 방법을 함께 적었습니다.',
           '공인중개사의 조언을 받아 실제 전세사기 사례를 바탕으로 제작되었습니다.',
         ].map((t, i) => (
-          <p key={i} style={{ fontSize: 12, color: '#999', lineHeight: '20pt', margin: 0, wordBreak: 'keep-all', letterSpacing: '-0.005em' }}>{t}</p>
+          <p key={i} style={{ fontSize: 12, color: '#999', margin: 0, wordBreak: 'keep-all', letterSpacing: '-0.005em' }}>{t}</p>
         ))}
       </div>
     </div>
