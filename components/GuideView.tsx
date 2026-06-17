@@ -28,38 +28,20 @@ const GREEN_BORDER = '#B2DFDB';
 function HeroSection() {
   return (
     <div style={{ padding: '56px 0 52px', borderBottom: '2px solid #111' }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: GREEN, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 18 }}>
-        계약전야 · 전세 계약 내비게이션
-      </p>
-      <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111', lineHeight: '44pt', letterSpacing: '-0.025em', marginBottom: 22, wordBreak: 'keep-all' }}>
+      <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111', lineHeight: '44pt', letterSpacing: '-0.025em', marginBottom: 24, wordBreak: 'keep-all' }}>
         처음으로 집 살 때<br />사기 안당하는<br />체크리스트
       </h1>
-      <p style={{ fontSize: 15, color: '#444', lineHeight: '26pt', marginBottom: 28, wordBreak: 'keep-all', letterSpacing: '-0.01em' }}>
-        전세 계약 전 꼭 확인해야 할 항목을 7단계 21개로 정리했습니다.<br />
-        처음 집을 구하는 분도 빠짐없이 확인할 수 있도록 만들었습니다.
-      </p>
-
-      {/* 누구를 위한 건지 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {[
-          '처음으로 전세 계약을 하는 분',
-          '전세사기가 걱정되는 분',
-          '계약 전 빠진 게 없는지 확인하고 싶은 분',
+          '처음 전세 계약을 앞두고 무엇부터 확인해야 할지 모르는 분들을 위해 만들었습니다.',
+          '등기부등본 확인부터 전입신고까지, 계약 전 꼭 챙겨야 할 항목을 7단계 21개로 정리했습니다.',
+          '주소와 보증금을 입력하면 국토교통부 실거래가 공공 API로 주변 시세를 자동 비교합니다.',
+          '집 정보를 처음 접하는 분도 따라갈 수 있도록 각 항목마다 이유와 방법을 함께 적었습니다.',
+          '공인중개사의 조언을 받아 실제 전세사기 사례를 바탕으로 제작되었습니다.',
         ].map((t, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: GREEN, flexShrink: 0 }} />
-            <span style={{ fontSize: 14, color: '#333', fontWeight: 600, lineHeight: '22pt' }}>{t}</span>
-          </div>
+          <p key={i} style={{ fontSize: 12, color: '#999', lineHeight: '20pt', margin: 0, wordBreak: 'keep-all', letterSpacing: '-0.005em' }}>{t}</p>
         ))}
       </div>
-
-      {/* 신뢰 컨텍스트 */}
-      <div style={{ background: '#F7F7F7', borderRadius: 8, padding: '16px 18px', borderLeft: `3px solid ${GREEN}` }}>
-        <p style={{ fontSize: 13, color: '#555', lineHeight: '22pt', margin: 0, letterSpacing: '-0.005em', wordBreak: 'keep-all' }}>
-          현직 공인중개사와 함께 검토한 항목입니다. 실제 전세사기 패턴을 분석해 선별했으며, 국토교통부 실거래가 데이터로 시세를 직접 비교합니다.
-        </p>
-      </div>
-
     </div>
   );
 }
