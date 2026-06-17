@@ -258,7 +258,7 @@ export default function Page() {
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <AppHeader {...headerProps} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px 48px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
-        <RiskResultCard result={result} status={status} errorMessage={errorMsg} checkedCount={checkedIds.size} totalChecks={totalChecks} onBackToGuide={() => setPhase('guide')} />
+        <RiskResultCard result={result} status={status} errorMessage={errorMsg} checkedIds={checkedIds} totalChecks={totalChecks} onBackToGuide={() => setPhase('guide')} />
         <p style={{ textAlign: 'center', fontSize: 11, color: '#aaa', lineHeight: 1.8, marginTop: 28 }}>
           이 서비스는 계약 전 위험 신호를 조기에 발견하기 위한 진단 도구입니다.<br />
           전세사기 여부를 단정하거나 법적 판단을 제공하지 않습니다.
