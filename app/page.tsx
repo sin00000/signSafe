@@ -6,6 +6,7 @@ import { currentYearMonth } from '@/lib/dateUtils';
 import { fetchRentAnalysis } from '@/lib/rentApi';
 import RiskResultCard from '@/components/RiskResultCard';
 import GuideView from '@/components/GuideView';
+import GuideToolsBar from '@/components/GuideToolsBar';
 import { CHECKS_BY_STEP } from '@/lib/checkData';
 import { RiskSignMini } from '@/components/SignFrame';
 
@@ -259,6 +260,9 @@ export default function Page() {
       <AppHeader {...headerProps} />
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px 48px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
         <RiskResultCard result={result} status={status} errorMessage={errorMsg} checkedIds={checkedIds} totalChecks={totalChecks} onBackToGuide={() => setPhase('guide')} />
+        <div style={{ marginTop: 16 }}>
+          <GuideToolsBar result={result} />
+        </div>
         <p style={{ textAlign: 'center', fontSize: 11, color: '#aaa', lineHeight: 1.8, marginTop: 28 }}>
           이 서비스는 계약 전 위험 신호를 조기에 발견하기 위한 진단 도구입니다.<br />
           전세사기 여부를 단정하거나 법적 판단을 제공하지 않습니다.

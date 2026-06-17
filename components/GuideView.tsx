@@ -448,7 +448,6 @@ export default function GuideView({
             </button>
           </div>
 
-          <AppendixSection result={analysisResult} />
         </div>
       </div>
     </div>
