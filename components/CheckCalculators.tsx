@@ -231,6 +231,9 @@ export function PriceCompareCalc({
           <line x1="10" y1="14" x2="21" y2="3"/>
         </svg>
       </a>
+      <p className="text-[10px] text-[#AAA] leading-relaxed mt-0.5">
+        출처: 국토교통부 실거래가 공개시스템 (data.go.kr) · 전월세 실거래가 API · 최근 4개월 거래 집계
+      </p>
     </CalcBox>
   );
 }

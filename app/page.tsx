@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FormData, RentAnalysisResult, AnalysisStatus } from '@/types/rent';
+import { FormData, RentAnalysisResult, AnalysisStatus, RiskLevel } from '@/types/rent';
 import { currentYearMonth } from '@/lib/dateUtils';
 import { fetchRentAnalysis } from '@/lib/rentApi';
 import RiskResultCard from '@/components/RiskResultCard';
@@ -33,6 +33,26 @@ const DEFAULT_FORM: FormData = {
   canInsure: null,
 };
 
+const LEVEL_INFO: Record<string, { label: string; color: string }> = {
+  red:    { label: '위험', color: '#FF8080' },
+  yellow: { label: '주의', color: '#FFD43B' },
+  blue:   { label: '안전', color: '#5EEAD4' },
+};
+
+function liveRiskLevel(
+  result: RentAnalysisResult | null,
+  status: AnalysisStatus,
+  checkedCount: number,
+  totalChecks: number,
+): RiskLevel {
+  if (result && status === 'success') return result.riskLevel;
+  const pct = totalChecks > 0 ? (checkedCount / totalChecks) * 100 : 0;
+  if (checkedCount === 0) return 'gray';
+  if (pct < 40) return 'red';
+  if (pct < 80) return 'yellow';
+  return 'blue';
+}
+
 export default function Page() {
   const [phase, setPhase]           = useState<Phase>('guide');
   const [form, setForm]             = useState<FormData>(DEFAULT_FORM);
@@ -42,6 +62,7 @@ export default function Page() {
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoCheckedRef = useRef<Set<string>>(new Set());
 
   const runAnalysis = useCallback(async (f: FormData) => {
     if (!f.lawdCd || !f.deposit || !f.dealYm) return;
@@ -84,6 +105,27 @@ export default function Page() {
     catch {}
   }, [skippedIds]);
 
+  // 계산 결과가 나오면 해당 카드 자동 체크
+  useEffect(() => {
+    const toAdd: string[] = [];
+    const ac = autoCheckedRef.current;
+    if ((status === 'success' || status === 'noData') && !ac.has('s2i0'))
+      { toAdd.push('s2i0'); ac.add('s2i0'); }
+    if (form.deposit && form.housePrice && !ac.has('s2i1'))
+      { toAdd.push('s2i1'); ac.add('s2i1'); }
+    if (form.housePrice && !ac.has('s2i2'))
+      { toAdd.push('s2i2'); ac.add('s2i2'); }
+    if (form.mortgageAmount != null && form.deposit && form.housePrice && !ac.has('s3i1'))
+      { toAdd.push('s3i1'); ac.add('s3i1'); }
+    if (toAdd.length > 0) {
+      setCheckedIds(prev => {
+        const n = new Set(prev);
+        toAdd.forEach(id => n.add(id));
+        return n;
+      });
+    }
+  }, [status, form.deposit, form.housePrice, form.mortgageAmount]);
+
   const toggleCheck = (id: string) => {
     setCheckedIds(prev => {
       const n = new Set(prev);
@@ -100,16 +142,8 @@ export default function Page() {
 
   const toggleSkip = (id: string) => {
     const willSkip = !skippedIds.has(id);
-    setSkippedIds(prev => {
-      const n = new Set(prev);
-      willSkip ? n.add(id) : n.delete(id);
-      return n;
-    });
-    setCheckedIds(prev => {
-      const n = new Set(prev);
-      willSkip ? n.add(id) : n.delete(id);
-      return n;
-    });
+    setSkippedIds(prev => { const n = new Set(prev); willSkip ? n.add(id) : n.delete(id); return n; });
+    setCheckedIds(prev => { const n = new Set(prev); willSkip ? n.add(id) : n.delete(id); return n; });
   };
 
   const resetAll = () => {
@@ -120,31 +154,12 @@ export default function Page() {
     setErrorMsg('');
     setCheckedIds(new Set());
     setSkippedIds(new Set());
+    autoCheckedRef.current = new Set();
   };
 
   const totalChecks = CHECKS_BY_STEP.flat().length;
   const donePct = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
-
-  const [displayPct, setDisplayPct] = useState(donePct);
-  const animRef = useRef<number | null>(null);
-  const prevPctRef = useRef(donePct);
-  useEffect(() => {
-    const from = prevPctRef.current;
-    const to = donePct;
-    prevPctRef.current = to;
-    if (from === to) return;
-    if (animRef.current !== null) cancelAnimationFrame(animRef.current);
-    const duration = 800;
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      setDisplayPct(Math.round(from + (to - from) * eased));
-      if (t < 1) animRef.current = requestAnimationFrame(step);
-    };
-    animRef.current = requestAnimationFrame(step);
-    return () => { if (animRef.current !== null) cancelAnimationFrame(animRef.current); };
-  }, [donePct]);
+  const currentLevel = liveRiskLevel(result, status, checkedIds.size, totalChecks);
 
   const AppHeader = () => (
     <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
@@ -158,10 +173,25 @@ export default function Page() {
             <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
           </div>
         </div>
-        <div style={{ fontSize: 34, fontWeight: 900, color: donePct > 0 ? '#5EEAD4' : 'rgba(255,255,255,0.25)', letterSpacing: '-0.03em', flexShrink: 0, lineHeight: 1, minWidth: 64, textAlign: 'right' }}>
-          {displayPct}%
+
+        {/* 4단 위험도 실시간 표시 */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 700, letterSpacing: '0.08em' }}>위험도</span>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {(['red', 'yellow', 'blue'] as const).map(lvl => (
+              <span key={lvl} style={{
+                fontSize: 11, fontWeight: 900, padding: '3px 7px', borderRadius: 3,
+                transition: 'all 0.5s ease',
+                background: currentLevel === lvl ? LEVEL_INFO[lvl].color : 'rgba(255,255,255,0.07)',
+                color: currentLevel === lvl ? '#111' : 'rgba(255,255,255,0.18)',
+              }}>
+                {LEVEL_INFO[lvl].label}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
+
       <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
         {phase === 'result' && (
           <button onClick={() => setPhase('guide')} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '5px 12px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>

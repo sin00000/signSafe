@@ -221,12 +221,22 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 
           {/* 결과 설명 */}
           <div style={{ padding: '14px 18px', borderBottom: '1px dashed #E8E8E8', background: isDone ? 'rgba(0,150,136,0.04)' : '#FAFAFA' }}>
-            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: isDone ? GREEN : '#888', marginBottom: 6 }}>
-              {isDone ? '확인 완료' : '미확인 시 위험'}
+            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', marginBottom: 6 }}>
+              미확인 시 위험
             </div>
-            <p style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.7, wordBreak: 'keep-all', color: isDone ? GREEN : '#222' }}>
-              {isDone ? check.whyItMatters : check.consequence}
+            <p style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.7, wordBreak: 'keep-all', color: '#222', marginBottom: check.whyItMatters ? 10 : 0 }}>
+              {check.consequence}
             </p>
+            {check.whyItMatters && (
+              <>
+                <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: GREEN, marginBottom: 6, marginTop: 2 }}>
+                  이 항목을 해야 하는 이유
+                </div>
+                <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.7, wordBreak: 'keep-all', color: isDone ? GREEN : '#444' }}>
+                  {check.whyItMatters}
+                </p>
+              </>
+            )}
           </div>
 
           {/* 계산기 */}
@@ -239,17 +249,6 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                 )}
               </div>
               {calcRenderer(calcProps)}
-              <button
-                onClick={e => { e.stopPropagation(); onToggleSkip(check.id); }}
-                style={{
-                  marginTop: 10, width: '100%', padding: '9px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-                  border: `1.5px solid ${isSkipped ? GREEN : '#E0E0E0'}`,
-                  background: isSkipped ? GREEN_LIGHT : '#fff',
-                  color: isSkipped ? GREEN : '#888', cursor: 'pointer', transition: 'all .15s',
-                }}
-              >
-                {isSkipped ? '다시 입력하기' : '정보 없이 건너뛰고 확인 완료'}
-              </button>
             </div>
           )}
 
