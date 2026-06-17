@@ -171,19 +171,24 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           {check.q}
         </span>
 
-        {/* 뱃지 영역 */}
-        {!isDone && isDanger && (
-          <span style={{ fontSize: 10, fontWeight: 900, background: '#111', color: '#fff', padding: '3px 7px', borderRadius: 3, flexShrink: 0 }}>
+        {/* 뱃지 영역 — 체크 후에도 유지 */}
+        {isDanger && (
+          <span style={{ fontSize: 10, fontWeight: 900, background: isDone ? '#999' : '#111', color: '#fff', padding: '3px 7px', borderRadius: 3, flexShrink: 0, transition: 'background .2s' }}>
             필수
           </span>
         )}
-        {!isDone && !isDanger && (
+        {!isDanger && !isDone && (
           <button
             onClick={e => { e.stopPropagation(); onToggle(check.id); }}
             style={{ fontSize: 10, fontWeight: 700, border: '1px solid #BDBDBD', color: '#777', padding: '3px 7px', borderRadius: 3, background: 'none', cursor: 'pointer', flexShrink: 0 }}
           >
             유의
           </button>
+        )}
+        {!isDanger && isDone && (
+          <span style={{ fontSize: 10, fontWeight: 700, border: '1px solid #D0D0D0', color: '#BDBDBD', padding: '3px 7px', borderRadius: 3, flexShrink: 0 }}>
+            유의
+          </span>
         )}
         {isDone && isSkipped && (
           <span style={{ fontSize: 10, fontWeight: 700, color: '#999', border: '1px solid #D0D0D0', padding: '2px 6px', borderRadius: 3, flexShrink: 0 }}>

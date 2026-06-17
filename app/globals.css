@@ -10,6 +10,8 @@ body {
   color: #111111;
   font-family: 'Pretendard Variable', 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
