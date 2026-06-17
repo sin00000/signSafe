@@ -53,6 +53,57 @@ function liveRiskLevel(
   return 'blue';
 }
 
+interface AppHeaderProps {
+  checkedCount: number;
+  totalChecks: number;
+  donePct: number;
+  currentLevel: RiskLevel;
+  phase: Phase;
+  onGoToGuide: () => void;
+  onReset: () => void;
+}
+
+function AppHeader({ checkedCount, totalChecks, donePct, currentLevel, phase, onGoToGuide, onReset }: AppHeaderProps) {
+  return (
+    <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>계약 전 확인 진행률</span>
+            <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{checkedCount} / {totalChecks} 항목</span>
+          </div>
+          <div style={{ height: 10, background: 'rgba(255,255,255,0.12)', borderRadius: 6, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 700, letterSpacing: '0.08em' }}>위험도</span>
+          <div style={{ display: 'flex', gap: 3 }}>
+            {(['red', 'yellow', 'blue'] as const).map(lvl => (
+              <span key={lvl} style={{
+                fontSize: 11, fontWeight: 900, padding: '3px 7px', borderRadius: 3,
+                transition: 'all 0.5s ease',
+                background: currentLevel === lvl ? LEVEL_INFO[lvl].color : 'rgba(255,255,255,0.07)',
+                color: currentLevel === lvl ? '#111' : 'rgba(255,255,255,0.18)',
+              }}>
+                {LEVEL_INFO[lvl].label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+        {phase === 'result' && (
+          <button onClick={onGoToGuide} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '5px 12px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>
+        )}
+        <button onClick={onReset} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', border: 'none', padding: '5px 4px', background: 'none', cursor: 'pointer' }}>처음부터</button>
+      </div>
+    </header>
+  );
+}
+
 export default function Page() {
   const [phase, setPhase]           = useState<Phase>('guide');
   const [form, setForm]             = useState<FormData>(DEFAULT_FORM);
@@ -61,7 +112,7 @@ export default function Page() {
   const [errorMsg, setErrorMsg]     = useState('');
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoCheckedRef = useRef<Set<string>>(new Set());
 
   const runAnalysis = useCallback(async (f: FormData) => {
@@ -105,7 +156,6 @@ export default function Page() {
     catch {}
   }, [skippedIds]);
 
-  // 계산 결과가 나오면 해당 카드 자동 체크
   useEffect(() => {
     const toAdd: string[] = [];
     const ac = autoCheckedRef.current;
@@ -134,9 +184,7 @@ export default function Page() {
     });
     setSkippedIds(prev => {
       if (!prev.has(id)) return prev;
-      const n = new Set(prev);
-      n.delete(id);
-      return n;
+      const n = new Set(prev); n.delete(id); return n;
     });
   };
 
@@ -157,54 +205,24 @@ export default function Page() {
     autoCheckedRef.current = new Set();
   };
 
-  const totalChecks = CHECKS_BY_STEP.flat().length;
-  const donePct = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
+  const totalChecks  = CHECKS_BY_STEP.flat().length;
+  const donePct      = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
   const currentLevel = liveRiskLevel(result, status, checkedIds.size, totalChecks);
 
-  const AppHeader = () => (
-    <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>계약 전 확인 진행률</span>
-            <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{checkedIds.size} / {totalChecks} 항목</span>
-          </div>
-          <div style={{ height: 10, background: 'rgba(255,255,255,0.12)', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-          </div>
-        </div>
-
-        {/* 4단 위험도 실시간 표시 */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 700, letterSpacing: '0.08em' }}>위험도</span>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {(['red', 'yellow', 'blue'] as const).map(lvl => (
-              <span key={lvl} style={{
-                fontSize: 11, fontWeight: 900, padding: '3px 7px', borderRadius: 3,
-                transition: 'all 0.5s ease',
-                background: currentLevel === lvl ? LEVEL_INFO[lvl].color : 'rgba(255,255,255,0.07)',
-                color: currentLevel === lvl ? '#111' : 'rgba(255,255,255,0.18)',
-              }}>
-                {LEVEL_INFO[lvl].label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-        {phase === 'result' && (
-          <button onClick={() => setPhase('guide')} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '5px 12px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>
-        )}
-        <button onClick={resetAll} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', border: 'none', padding: '5px 4px', background: 'none', cursor: 'pointer' }}>처음부터</button>
-      </div>
-    </header>
-  );
+  const headerProps: AppHeaderProps = {
+    checkedCount: checkedIds.size,
+    totalChecks,
+    donePct,
+    currentLevel,
+    phase,
+    onGoToGuide: () => setPhase('guide'),
+    onReset: resetAll,
+  };
 
   if (phase === 'guide') {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <AppHeader />
+        <AppHeader {...headerProps} />
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <GuideView
             confirmed={checkedIds}
@@ -225,10 +243,10 @@ export default function Page() {
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <AppHeader />
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 48px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
+      <AppHeader {...headerProps} />
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px 48px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
         <RiskResultCard result={result} status={status} errorMessage={errorMsg} checkedCount={checkedIds.size} totalChecks={totalChecks} onBackToGuide={() => setPhase('guide')} />
-        <p style={{ textAlign: 'center', fontSize: 11, color: '#888', lineHeight: 1.8, marginTop: 24 }}>
+        <p style={{ textAlign: 'center', fontSize: 11, color: '#aaa', lineHeight: 1.8, marginTop: 28 }}>
           이 서비스는 계약 전 위험 신호를 조기에 발견하기 위한 진단 도구입니다.<br />
           전세사기 여부를 단정하거나 법적 판단을 제공하지 않습니다.
         </p>

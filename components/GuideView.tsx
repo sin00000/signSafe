@@ -60,23 +60,6 @@ function HeroSection() {
         </p>
       </div>
 
-      {/* 범례 */}
-      <div style={{ display: 'flex', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 10, fontWeight: 900, background: '#111', color: '#fff', padding: '2px 7px', borderRadius: 3 }}>필수</span>
-          <span style={{ fontSize: 11, color: '#555' }}>반드시 확인</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 16, height: 16, borderRadius: '50%', background: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          </div>
-          <span style={{ fontSize: 11, color: '#555' }}>확인 완료</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, border: '1px solid #BDBDBD', color: '#777', padding: '2px 7px', borderRadius: 3 }}>알고 있어요</span>
-          <span style={{ fontSize: 11, color: '#555' }}>주의 항목 인지</span>
-        </div>
-      </div>
     </div>
   );
 }
@@ -201,7 +184,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
             onClick={e => { e.stopPropagation(); onToggle(check.id); }}
             style={{ fontSize: 10, fontWeight: 700, border: '1px solid #BDBDBD', color: '#777', padding: '3px 7px', borderRadius: 3, background: 'none', cursor: 'pointer', flexShrink: 0 }}
           >
-            알고 있어요
+            유의
           </button>
         )}
         {isDone && isSkipped && (

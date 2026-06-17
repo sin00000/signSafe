@@ -23,12 +23,13 @@ const DEFAULT_TERMS = [
 
 const formatTerm = (t: typeof GLOSSARY_TERMS[number]) => `${t.term}(${t.plain}) — ${t.definition}`;
 
-type TabId = 'questions' | 'terms' | 'glossary';
+type TabId = 'todo' | 'questions' | 'terms' | 'glossary';
 
 const TABS: { id: TabId; label: string; color: string; bg: string; dim: string }[] = [
-  { id: 'questions', label: '질문',    color: '#009688', bg: '#F0FAFA', dim: '#00695C' },
-  { id: 'terms',     label: '특약 예시', color: '#F5B400', bg: '#FFFBF0', dim: '#7A5900' },
-  { id: 'glossary',  label: '용어 정리', color: '#6B5BD6', bg: '#F2F0FF', dim: '#4B3FA0' },
+  { id: 'todo',      label: '다음 할 일',  color: '#111111', bg: '#F5F5F5', dim: '#333' },
+  { id: 'questions', label: '질문',        color: '#009688', bg: '#F0FAFA', dim: '#00695C' },
+  { id: 'terms',     label: '특약 예시',   color: '#E6A000', bg: '#FFFBF0', dim: '#7A5900' },
+  { id: 'glossary',  label: '용어 정리',   color: '#6B5BD6', bg: '#F2F0FF', dim: '#4B3FA0' },
 ];
 
 interface Props {
@@ -54,8 +55,9 @@ export default function GuideToolsBar({ result }: Props) {
   const [tab, setTab] = useState<TabId | null>(null);
   const [copied, setCopied] = useState<{ tab: TabId; idx: number } | null>(null);
 
-  const questions = result?.questionsToAsk ?? DEFAULT_QUESTIONS;
-  const terms = result?.contractSpecialTerms ?? DEFAULT_TERMS;
+  const questions    = result?.questionsToAsk     ?? DEFAULT_QUESTIONS;
+  const terms        = result?.contractSpecialTerms ?? DEFAULT_TERMS;
+  const requiredChecks = result?.requiredChecks ?? [];
 
   const copyOne = (which: TabId, idx: number, text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -75,19 +77,19 @@ export default function GuideToolsBar({ result }: Props) {
 
   return (
     <div className="rounded-xl overflow-hidden border-2" style={{ borderColor: active ? active.color : '#E0E0E0', flexShrink: 0 }}>
-      {/* 삼분할 탭 — 클릭하면 해당 영역이 펼쳐짐 */}
-      <div className="grid grid-cols-3">
+      {/* 4분할 탭 */}
+      <div className="grid grid-cols-4">
         {TABS.map((t, i) => {
           const isActive = tab === t.id;
           return (
             <button
               key={t.id}
               onClick={() => setTab(v => v === t.id ? null : t.id)}
-              className="px-2 py-3 text-center text-[13px] font-black transition-colors"
+              className="px-2 py-3 text-center text-[11px] font-black transition-colors"
               style={{
                 background: isActive ? t.color : '#FAFAFA',
                 color: isActive ? '#fff' : '#999',
-                borderRight: i < 2 ? '1px solid #E0E0E0' : undefined,
+                borderRight: i < 3 ? '1px solid #E0E0E0' : undefined,
               }}
             >
               {t.label}
@@ -98,6 +100,50 @@ export default function GuideToolsBar({ result }: Props) {
 
       {active && (
         <div style={{ background: active.bg, maxHeight: '46vh', overflowY: 'auto' }}>
+
+          {/* 다음 할 일 */}
+          {active.id === 'todo' && (
+            <div className="p-4 space-y-2">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[11px] font-bold" style={{ color: active.dim }}>
+                  {result ? '분석 결과 기준으로 우선 확인해야 할 항목입니다.' : '계약 전 기본 확인 목록입니다.'}
+                </p>
+                <span
+                  role="button"
+                  onClick={() => {
+                    const list = result?.requiredChecks.length ? result.requiredChecks : [
+                      '등기부등본 갑구: 소유자 이름과 신분증 이름을 직접 대조하세요.',
+                      '등기부등본 을구: 근저당 채권최고액을 확인하고 (근저당 + 보증금)이 집값보다 낮은지 계산하세요.',
+                      '전입신고 가능 여부: 주거용 건물인지, 전입신고가 가능한 주소인지 확인하세요.',
+                      '확정일자: 전입신고 당일 주민센터에서 무료로 받을 수 있습니다.',
+                      'HUG·HF·SGI에서 전세보증보험 사전 조회를 하세요.',
+                      '건축물대장에서 위반건축물 여부를 확인하세요.',
+                      '계약서 특약에 보증금 보호 관련 문구를 삽입하세요.',
+                    ];
+                    copyAll('todo', list.map((q, i) => `${i + 1}. ${q}`).join('\n'));
+                  }}
+                  className="text-[11px] font-bold border px-2.5 py-1 rounded transition-colors flex-shrink-0 cursor-pointer"
+                  style={{ color: active.dim, borderColor: active.dim + '55' }}
+                >
+                  {copied?.tab === 'todo' && copied.idx === -1 ? '복사됨' : '전체 복사'}
+                </span>
+              </div>
+              {(requiredChecks.length > 0 ? requiredChecks : [
+                '등기부등본 갑구: 소유자 이름과 신분증 이름을 직접 대조하세요.',
+                '등기부등본 을구: 근저당 채권최고액을 확인하고 (근저당 + 보증금)이 집값보다 낮은지 계산하세요.',
+                '전입신고 가능 여부: 주거용 건물인지, 전입신고가 가능한 주소인지 확인하세요.',
+                '확정일자: 전입신고 당일 주민센터에서 무료로 받을 수 있습니다.',
+                'HUG·HF·SGI에서 전세보증보험 사전 조회를 하세요.',
+                '건축물대장에서 위반건축물 여부를 확인하세요 (정부24 → 건축물대장 발급).',
+                '계약서 특약에 보증금 보호 관련 문구를 삽입하세요.',
+              ]).map((q, i) => (
+                <CopyRow key={i} idx={i} text={q} copiedIdx={copied?.tab === 'todo' ? copied.idx : null}
+                  onCopy={(idx, text) => copyOne('todo', idx, text)} accentColor={active.color} badge={`${i + 1}`} />
+              ))}
+            </div>
+          )}
+
+          {/* 질문 */}
           {active.id === 'questions' && (
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between mb-1">
@@ -118,6 +164,7 @@ export default function GuideToolsBar({ result }: Props) {
             </div>
           )}
 
+          {/* 특약 예시 */}
           {active.id === 'terms' && (
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between mb-1">
@@ -141,6 +188,7 @@ export default function GuideToolsBar({ result }: Props) {
             </div>
           )}
 
+          {/* 용어 정리 */}
           {active.id === 'glossary' && (
             <div className="p-4 space-y-2">
               <p className="text-[11px] font-bold mb-1" style={{ color: active.dim }}>계약서·등기부등본에서 만날 단어들을 미리 정리했어요.</p>
