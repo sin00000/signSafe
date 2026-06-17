@@ -27,35 +27,35 @@ const GREEN_BORDER = '#B2DFDB';
 /* ── 히어로 / 랜딩 섹션 ───────────────────────────────────── */
 function HeroSection() {
   return (
-    <div style={{ padding: '36px 0 32px', borderBottom: '2px solid #111' }}>
-      <p style={{ fontSize: 11, fontWeight: 700, color: GREEN, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
+    <div style={{ padding: '56px 0 52px', borderBottom: '2px solid #111' }}>
+      <p style={{ fontSize: 11, fontWeight: 700, color: GREEN, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 18 }}>
         계약전야 · 전세 계약 내비게이션
       </p>
-      <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: 16, wordBreak: 'keep-all' }}>
+      <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111', lineHeight: '44pt', letterSpacing: '-0.025em', marginBottom: 22, wordBreak: 'keep-all' }}>
         처음으로 집 살 때<br />사기 안당하는<br />체크리스트
       </h1>
-      <p style={{ fontSize: 14, color: '#444', lineHeight: 1.75, marginBottom: 20, wordBreak: 'keep-all' }}>
+      <p style={{ fontSize: 15, color: '#444', lineHeight: '26pt', marginBottom: 28, wordBreak: 'keep-all', letterSpacing: '-0.01em' }}>
         전세 계약 전 꼭 확인해야 할 항목을 7단계 21개로 정리했습니다.<br />
         처음 집을 구하는 분도 빠짐없이 확인할 수 있도록 만들었습니다.
       </p>
 
       {/* 누구를 위한 건지 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
         {[
           '처음으로 전세 계약을 하는 분',
           '전세사기가 걱정되는 분',
           '계약 전 빠진 게 없는지 확인하고 싶은 분',
         ].map((t, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 5, height: 5, borderRadius: '50%', background: GREEN, flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: '#333', fontWeight: 600 }}>{t}</span>
+            <span style={{ fontSize: 14, color: '#333', fontWeight: 600, lineHeight: '22pt' }}>{t}</span>
           </div>
         ))}
       </div>
 
       {/* 신뢰 컨텍스트 */}
-      <div style={{ background: '#F7F7F7', borderRadius: 8, padding: '12px 14px', marginBottom: 20, borderLeft: `3px solid ${GREEN}` }}>
-        <p style={{ fontSize: 12, color: '#555', lineHeight: 1.7, margin: 0 }}>
+      <div style={{ background: '#F7F7F7', borderRadius: 8, padding: '16px 18px', borderLeft: `3px solid ${GREEN}` }}>
+        <p style={{ fontSize: 13, color: '#555', lineHeight: '22pt', margin: 0, letterSpacing: '-0.005em', wordBreak: 'keep-all' }}>
           현직 공인중개사와 함께 검토한 항목입니다. 실제 전세사기 패턴을 분석해 선별했으며, 국토교통부 실거래가 데이터로 시세를 직접 비교합니다.
         </p>
       </div>
