@@ -24,7 +24,7 @@ export const STEP_NAMES = [
 
 export const CHECK_ITEMS: CheckItem[] = [
   // 1단계
-  { id:'s0i0', stepIdx:0, itemIdx:0, risk:'danger', q:'집을 직접 방문해서 확인하세요',
+  { id:'s0i0', stepIdx:0, itemIdx:0, risk:'danger', q:'집을 직접 방문해서 확인하기',
     consequence:'실제로 존재하지 않는 집에 계약금을 보내면 돌려받기 거의 불가능합니다.',
     whyItMatters:'직접 가서 본 집은 광고 사진이 절대 대신할 수 없는 진짜 정보입니다. 이 한 번의 방문이 없는 집 사기를 막는 가장 확실한 첫 번째 방어선이 됩니다.',
     actions:[
@@ -35,7 +35,7 @@ export const CHECK_ITEMS: CheckItem[] = [
       { text:'집 주변 환경(교통, 소음, 햇빛)도 직접 둘러보고 확인하세요.',
         why:'살아보기 전에는 알기 어려운 단점을 미리 발견해 입주 후 후회를 줄일 수 있습니다.' },
     ] },
-  { id:'s0i1', stepIdx:0, itemIdx:1, risk:'caution', q:'부동산 중개사(공인중개사)가 나라에 등록됐는지 확인하세요',
+  { id:'s0i1', stepIdx:0, itemIdx:1, risk:'caution', q:'부동산 중개사(공인중개사)가 나라에 등록됐는지 확인하기',
     consequence:'등록하지 않은 중개사에게 사기를 당하면 나라에서 운영하는 피해 보상 보험(공제)을 이용할 수 없어요.',
     whyItMatters:'나라에 등록된 중개사를 통해 계약하면, 나중에 문제가 생겨도 중개사 피해 보상 보험(공인중개사 공제)으로 돈을 돌려받을 길이 열려 있습니다.',
     actions:[
@@ -47,7 +47,7 @@ export const CHECK_ITEMS: CheckItem[] = [
         why:'등록하지 않은 중개사를 통해 계약하면 사고가 나도 보상받을 길이 없기 때문입니다.' },
     ],
     externalLink: { url:'https://www.vworld.kr/dtld/broker/dtld_list_s001.do', label:'국토부 중개사무소 공식 조회', sub:'www.vworld.kr · 중개사무소 등록현황 조회 시스템' } },
-  { id:'s0i2', stepIdx:0, itemIdx:2, risk:'danger', q:'이 집이 실제로 사람이 사는 용도인지 확인하세요',
+  { id:'s0i2', stepIdx:0, itemIdx:2, risk:'danger', q:'이 집이 실제로 사람이 사는 용도인지 확인하기',
     consequence:'법적으로 주택이 아니면 세입자 보호법(주택임대차보호법)의 보호를 받을 수 없고, 보증금 보호 보험(전세보증보험) 가입도 불가능해요.',
     whyItMatters:'서류상 주택으로 등록된 곳이어야 세입자 보호법(주택임대차보호법)의 보호와 보증금 보호 보험(전세보증보험) 가입을 모두 받을 수 있습니다. 이 확인은 앞으로 받을 모든 보호의 전제 조건입니다.',
     actions:[
@@ -59,7 +59,7 @@ export const CHECK_ITEMS: CheckItem[] = [
         why:'이런 건물은 법적으로 주택이 아니어서 법의 보호와 보증금 보호 보험 가입 모두 받기 어렵습니다.' },
     ] },
   // 2단계
-  { id:'s1i0', stepIdx:1, itemIdx:0, risk:'danger', q:'계약 상대방이 실제 집주인인지 확인하세요',
+  { id:'s1i0', stepIdx:1, itemIdx:0, risk:'danger', q:'계약 상대방이 실제 집주인인지 확인하기',
     consequence:'가짜 집주인과 맺은 계약은 법적으로 효력이 없어, 보증금 전액을 잃을 수 있어요.',
     whyItMatters:'집 소유 서류의 소유자와 계약 상대방이 같은 사람이라는 것을 확인하면, 그 계약은 법적으로 보호받는 출발점을 갖추게 됩니다. 모든 확인의 기초가 되는 가장 중요한 단계입니다.',
     actions:[
@@ -104,7 +104,7 @@ export const CHECK_ITEMS: CheckItem[] = [
       { text:'내 보증금이 주변 평균보다 20% 이상 높다면, 그 이유를 중개사에게 직접 물어보세요.',
         why:'평균보다 크게 높은 가격은 집값보다 전세금이 너무 큰 위험한 전세(깡통전세)의 대표적인 신호이기 때문입니다.' },
     ] },
-  { id:'s2i1', stepIdx:2, itemIdx:1, risk:'danger', q:'전세금이 집값의 70% 이하인지 확인하세요',
+  { id:'s2i1', stepIdx:2, itemIdx:1, risk:'danger', q:'전세금이 집값의 70% 이하인지 확인하기',
     consequence:'전세금이 집값의 80%를 넘으면, 집값이 조금만 떨어져도 경매에서 보증금을 다 돌려받지 못하는 깡통전세 위험이 커집니다.',
     whyItMatters:'전세금 비율이 낮을수록 집값이 떨어지더라도 보증금을 돌려받을 여유 공간이 커집니다. 이 숫자를 직접 계산해 보면 이 집이 안전할 만큼 여유가 있는가를 가장 객관적인 기준으로 판단할 수 있습니다.',
     actions:[
@@ -115,7 +115,7 @@ export const CHECK_ITEMS: CheckItem[] = [
       { text:'비율이 높게 나왔다면, 계약 전에 보증금 보호 보험(전세보증보험) 가입이 가능한지 HUG·HF·SGI에 직접 미리 조회하세요.',
         why:'보험 가입 가능 여부는 전세금 비율과는 다른 기준으로 심사되므로, 직접 조회해야 정확히 알 수 있습니다.' },
     ] },
-  { id:'s2i2', stepIdx:2, itemIdx:2, risk:'caution', q:'집값이 얼마인지 공식 자료로 확인하세요',
+  { id:'s2i2', stepIdx:2, itemIdx:2, risk:'caution', q:'집값이 얼마인지 공식 자료로 확인하기',
     consequence:'집값이 실제보다 부풀려져 있으면 전세금 비율이 낮아 보여 위험을 그대로 놓치게 됩니다.',
     whyItMatters:'공식 자료로 확인한 집값은 누구도 부풀릴 수 없는 객관적인 기준이 되어, 이를 바탕으로 계산한 전세금 비율도 믿고 활용할 수 있게 됩니다.',
     actions:[
@@ -127,7 +127,7 @@ export const CHECK_ITEMS: CheckItem[] = [
         why:'집값을 부풀려 전세금 비율을 낮게 보이게 만드는 수법을 미리 알아챌 수 있습니다.' },
     ] },
   // 4단계
-  { id:'s3i0', stepIdx:3, itemIdx:0, risk:'danger', q:'집 소유 서류(등기부등본)에서 집주인을 다시 확인하세요',
+  { id:'s3i0', stepIdx:3, itemIdx:0, risk:'danger', q:'집 소유 서류(등기부등본)에서 집주인을 다시 확인하기',
     consequence:'며칠 전 발급한 서류를 그대로 믿으면, 그 사이 새로 생긴 빚이나 소유주 변동을 놓칠 수 있어요.',
     whyItMatters:'계약 당일 아침에 다시 발급받은 집 소유 서류는 지금 이 순간 가장 정확한 정보입니다. 이 마지막 확인이 계약 직전 숨겨진 변화를 잡아내는 최종 안전장치가 됩니다.',
     actions:[
@@ -138,7 +138,7 @@ export const CHECK_ITEMS: CheckItem[] = [
       { text:'새로 생긴 은행 담보나 빚이 없는지 확인하세요.',
         why:'계약 직전에 몰래 추가 대출을 받으면, 집이 경매에 넘어갔을 때 내 보증금보다 은행이 먼저 돈을 가져갈 수 있습니다.' },
     ] },
-  { id:'s3i1', stepIdx:3, itemIdx:1, risk:'danger', q:'집에 걸린 은행 빚(근저당)을 확인하세요',
+  { id:'s3i1', stepIdx:3, itemIdx:1, risk:'danger', q:'집에 걸린 은행 빚(근저당)을 확인하기',
     consequence:'(은행 담보 최대 금액 + 내 전세금)이 집값을 넘으면, 경매가 진행돼도 전세금을 돌려받지 못할 수 있어요.',
     whyItMatters:'은행 담보 금액과 내 보증금을 더한 값이 집값 안에 충분히 들어온다는 사실을 확인하면, 경매가 벌어지더라도 보증금을 돌려받을 가능성을 실질적으로 확보하게 됩니다.',
     actions:[
@@ -149,7 +149,7 @@ export const CHECK_ITEMS: CheckItem[] = [
       { text:'계산 결과가 집값의 80%를 넘으면 계약을 멈추고 등기 전문가(법무사)에게 상담을 받으세요.',
         why:'이 비율이 높을수록 경매가 진행됐을 때 내 보증금을 돌려받을 가능성이 급격히 줄어들기 때문입니다.' },
     ] },
-  { id:'s3i2', stepIdx:3, itemIdx:2, risk:'danger', q:'압류나 처분 금지가 없는지 확인하세요',
+  { id:'s3i2', stepIdx:3, itemIdx:2, risk:'danger', q:'압류나 처분 금지가 없는지 확인하기',
     consequence:'압류·처분 금지가 있으면 집이 갑자기 경매에 넘어가 보증금을 잃을 위험이 매우 커집니다.',
     whyItMatters:'압류·처분 금지가 없다는 사실을 확인하면, 이 집이 법적 분쟁 없이 안정적으로 소유권을 유지하고 있다는 뜻이므로 갑작스러운 경매 위험에서 한층 자유로워집니다.',
     actions:[
@@ -161,7 +161,7 @@ export const CHECK_ITEMS: CheckItem[] = [
         why:'계약 직전 며칠 사이에도 새로운 압류나 처분 금지가 등록될 수 있기 때문입니다.' },
     ] },
   // 5단계
-  { id:'s4i0', stepIdx:4, itemIdx:0, risk:'danger', q:'보증금 보호 보험에 가입할 수 있는지 확인하세요',
+  { id:'s4i0', stepIdx:4, itemIdx:0, risk:'danger', q:'보증금 보호 보험에 가입할 수 있는지 확인하기',
     consequence:'가입이 안 되는 집에 계약하면, 집주인이 보증금을 돌려주지 않을 때 소송 외에는 되찾을 방법이 없어집니다.',
     whyItMatters:'계약 전에 가입 가능 여부를 확인해 두면, 혹시 집주인이 보증금을 돌려주지 않을 때도 보험사를 통해 돈을 돌려받을 수 있는 마지막 안전망을 미리 확보하게 됩니다.',
     actions:[
@@ -193,7 +193,7 @@ export const CHECK_ITEMS: CheckItem[] = [
         why:'나중에 보증금을 청구할 때, 가입 사실을 증명하는 가장 중요한 서류가 되기 때문입니다.' },
     ] },
   // 6단계
-  { id:'s5i0', stepIdx:5, itemIdx:0, risk:'danger', q:'계약서에 불리한 조항이 없는지 확인하세요',
+  { id:'s5i0', stepIdx:5, itemIdx:0, risk:'danger', q:'계약서에 불리한 조항이 없는지 확인하기',
     consequence:'전세금 반환 면제 같은 불리한 조항에 서명하면, 집주인이 돈을 돌려주지 않아도 법적으로 요구하기 어려워질 수 있습니다.',
     whyItMatters:'추가 조항을 꼼꼼히 확인하고 넘어가면, 서명 후에는 되돌릴 수 없는 불리한 약속에 묶이는 일을 사전에 막아 계약 전체의 공정성을 지킬 수 있습니다.',
     actions:[
@@ -204,7 +204,7 @@ export const CHECK_ITEMS: CheckItem[] = [
       { text:'이해가 잘 안 되는 조항이 있다면, 서명 전에 등기 전문가(법무사)에게 검토를 받으세요.',
         why:'전문가의 검토를 거치면, 서명 후에는 되돌릴 수 없는 불리한 조항을 사전에 걸러낼 수 있습니다.' },
     ] },
-  { id:'s5i1', stepIdx:5, itemIdx:1, risk:'caution', q:'계약 기간이 정확한 날짜로 적혀 있는지 확인하세요',
+  { id:'s5i1', stepIdx:5, itemIdx:1, risk:'caution', q:'계약 기간이 정확한 날짜로 적혀 있는지 확인하기',
     consequence:'날짜가 불명확하면, 원하지 않는 시점에 갑자기 집을 비워줘야 하는 상황이 생길 수 있습니다.',
     whyItMatters:'계약 기간이 날짜로 명확히 적혀 있으면, 이사·마지막 금액 납부·새 주소 신고 등 앞으로의 모든 일정을 분쟁 없이 미리 계획하고 준비할 수 있습니다.',
     actions:[
