@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FormData, RentAnalysisResult, AnalysisStatus, RiskLevel } from '@/types/rent';
+import { FormData, RentAnalysisResult, AnalysisStatus } from '@/types/rent';
+import { formatWon } from '@/lib/formatMoney';
 import { currentYearMonth } from '@/lib/dateUtils';
 import { fetchRentAnalysis } from '@/lib/rentApi';
 import RiskResultCard from '@/components/RiskResultCard';
@@ -33,73 +34,66 @@ const DEFAULT_FORM: FormData = {
   canInsure: null,
 };
 
-const LEVEL_INFO: Record<string, { label: string; color: string }> = {
-  red:    { label: '위험', color: '#FF8080' },
-  yellow: { label: '주의', color: '#FFD43B' },
-  blue:   { label: '안전', color: '#5EEAD4' },
-};
-
-function liveRiskLevel(
-  result: RentAnalysisResult | null,
-  status: AnalysisStatus,
-  checkedCount: number,
-  totalChecks: number,
-): RiskLevel {
-  if (result && status === 'success') return result.riskLevel;
-  const pct = totalChecks > 0 ? (checkedCount / totalChecks) * 100 : 0;
-  if (checkedCount === 0) return 'gray';
-  if (pct < 40) return 'red';
-  if (pct < 80) return 'yellow';
-  return 'blue';
-}
-
 interface AppHeaderProps {
-  checkedCount: number;
-  totalChecks: number;
-  donePct: number;
-  currentLevel: RiskLevel;
+  result: RentAnalysisResult | null;
+  status: AnalysisStatus;
   phase: Phase;
   onGoToGuide: () => void;
   onReset: () => void;
 }
 
-function AppHeader({ checkedCount, totalChecks, donePct, currentLevel, phase, onGoToGuide, onReset }: AppHeaderProps) {
+function AppHeader({ result, status, phase, onGoToGuide, onReset }: AppHeaderProps) {
+  const hasResult = result && (status === 'success');
+  const refMedian = hasResult
+    ? (result.jeonseCount >= 3 ? result.medianJeonseDeposit : result.medianAllDeposit)
+    : null;
+
+  const ratioColor = hasResult && result.depositRatio != null
+    ? result.depositRatio >= 130 ? '#FF8080'
+    : result.depositRatio >= 110 ? '#FFD43B'
+    : '#5EEAD4'
+    : 'rgba(255,255,255,0.4)';
+
   return (
-    <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.06em' }}>계약 전 확인 진행률</span>
-            <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.7)' }}>{checkedCount} / {totalChecks} 항목</span>
-          </div>
-          <div style={{ height: 10, background: 'rgba(255,255,255,0.12)', borderRadius: 6, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${donePct}%`, background: '#009688', borderRadius: 6, transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }} />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 700, letterSpacing: '0.08em' }}>위험도</span>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {(['red', 'yellow', 'blue'] as const).map(lvl => (
-              <span key={lvl} style={{
-                fontSize: 11, fontWeight: 900, padding: '3px 7px', borderRadius: 3,
-                transition: 'all 0.5s ease',
-                background: currentLevel === lvl ? LEVEL_INFO[lvl].color : 'rgba(255,255,255,0.07)',
-                color: currentLevel === lvl ? '#111' : 'rgba(255,255,255,0.18)',
-              }}>
-                {LEVEL_INFO[lvl].label}
-              </span>
-            ))}
-          </div>
+    <header style={{ background: '#111', color: '#fff', padding: '12px 18px 10px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>계약전야</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {phase === 'result' && (
+            <button onClick={onGoToGuide} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '4px 10px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>
+          )}
+          <button onClick={onReset} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', border: 'none', padding: '4px 2px', background: 'none', cursor: 'pointer' }}>처음부터</button>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-        {phase === 'result' && (
-          <button onClick={onGoToGuide} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '5px 12px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>
-        )}
-        <button onClick={onReset} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', border: 'none', padding: '5px 4px', background: 'none', cursor: 'pointer' }}>처음부터</button>
-      </div>
+      {/* 분석 결과 compact (위험도 레벨 제외, 수치만) */}
+      {hasResult && (
+        <div style={{ marginTop: 9, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {result.depositRatio != null && (
+            <span style={{ fontSize: 11, fontWeight: 900, color: ratioColor, background: 'rgba(255,255,255,0.07)', padding: '3px 8px', borderRadius: 4 }}>
+              시세 대비 {result.depositRatio}%
+            </span>
+          )}
+          {result.jeonseRate != null && (
+            <span style={{ fontSize: 11, fontWeight: 900, color: result.jeonseRate >= 80 ? '#FF8080' : result.jeonseRate >= 70 ? '#FFD43B' : '#5EEAD4', background: 'rgba(255,255,255,0.07)', padding: '3px 8px', borderRadius: 4 }}>
+              전세가율 {result.jeonseRate}%
+            </span>
+          )}
+          {refMedian != null && (
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '3px 8px', borderRadius: 4 }}>
+              시세 중앙값 {formatWon(refMedian)}
+            </span>
+          )}
+          {result.jeonseCount > 0 && (
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>
+              전세 {result.jeonseCount}건
+            </span>
+          )}
+        </div>
+      )}
+      {status === 'loading' && (
+        <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>실거래가 조회 중…</div>
+      )}
     </header>
   );
 }
@@ -205,15 +199,11 @@ export default function Page() {
     autoCheckedRef.current = new Set();
   };
 
-  const totalChecks  = CHECKS_BY_STEP.flat().length;
-  const donePct      = totalChecks > 0 ? Math.round((checkedIds.size / totalChecks) * 100) : 0;
-  const currentLevel = liveRiskLevel(result, status, checkedIds.size, totalChecks);
+  const totalChecks = CHECKS_BY_STEP.flat().length;
 
   const headerProps: AppHeaderProps = {
-    checkedCount: checkedIds.size,
-    totalChecks,
-    donePct,
-    currentLevel,
+    result,
+    status,
     phase,
     onGoToGuide: () => setPhase('guide'),
     onReset: resetAll,

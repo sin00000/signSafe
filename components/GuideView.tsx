@@ -122,9 +122,9 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
   const isDanger    = check.risk === 'danger';
   const calcRenderer = CALC_RENDERERS[check.id];
 
-  const cardBg     = isDone ? GREEN_LIGHT : '#fff';
-  const cardBorder = isDone ? GREEN_BORDER : '#E0E0E0';
-  const textColor  = isDone ? GREEN : '#111';
+  const cardBg     = isDone ? '#F5F5F5' : '#fff';
+  const cardBorder = isDone ? '#D0D0D0' : '#E0E0E0';
+  const textColor  = isDone ? '#999' : '#111';
 
   const toggleAction = (i: number) => {
     setActionsDone(p => {
@@ -155,7 +155,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           style={{
             width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
             border: isDone ? 'none' : `2px solid #BDBDBD`,
-            background: isDone ? GREEN : 'transparent',
+            background: isDone ? '#BDBDBD' : 'transparent',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', transition: 'all .15s', padding: 0,
           }}
@@ -167,8 +167,6 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
         <span onClick={onOpen} style={{
           flex: 1, fontSize: 16, fontWeight: 800, color: textColor,
           wordBreak: 'keep-all', lineHeight: 1.3, cursor: 'pointer',
-          textDecoration: isDone ? 'line-through' : 'none',
-          textDecorationColor: GREEN,
         }}>
           {check.q}
         </span>
@@ -188,7 +186,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           </button>
         )}
         {isDone && isSkipped && (
-          <span style={{ fontSize: 10, fontWeight: 700, color: GREEN, border: `1px solid ${GREEN_BORDER}`, padding: '2px 6px', borderRadius: 3, flexShrink: 0 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#999', border: '1px solid #D0D0D0', padding: '2px 6px', borderRadius: 3, flexShrink: 0 }}>
             건너뜀
           </span>
         )}
@@ -203,7 +201,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
         <div style={{ borderTop: '1px solid #E8E8E8' }}>
 
           {/* 결과 설명 */}
-          <div style={{ padding: '14px 18px', borderBottom: '1px dashed #E8E8E8', background: isDone ? 'rgba(0,150,136,0.04)' : '#FAFAFA' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px dashed #E8E8E8', background: isDone ? '#F5F5F5' : '#FAFAFA' }}>
             <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', marginBottom: 6 }}>
               미확인 시 위험
             </div>
@@ -212,10 +210,10 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
             </p>
             {check.whyItMatters && (
               <>
-                <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: GREEN, marginBottom: 6, marginTop: 2 }}>
+                <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', marginBottom: 6, marginTop: 2 }}>
                   이 항목을 해야 하는 이유
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.7, wordBreak: 'keep-all', color: isDone ? GREEN : '#444' }}>
+                <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.7, wordBreak: 'keep-all', color: '#555' }}>
                   {check.whyItMatters}
                 </p>
               </>
@@ -276,18 +274,18 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                     <button onClick={e => { e.stopPropagation(); toggleAction(i); }} aria-label="할 일 완료 체크" style={{
                       width: 22, height: 22, borderRadius: 6, flexShrink: 0, marginTop: 2,
                       border: adone ? 'none' : '2px solid #CFCFCF', cursor: 'pointer',
-                      background: adone ? GREEN : '#fff',
+                      background: adone ? '#BDBDBD' : '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       transition: 'all .15s',
                     }}>
                       {adone && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
                     </button>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: adone ? GREEN : '#111', lineHeight: 1.65, transition: 'all .15s' }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: adone ? '#888' : '#111', lineHeight: 1.65, transition: 'all .15s' }}>
                         {a.text}
                       </p>
                       {adone && (
-                        <p style={{ fontSize: 12, color: GREEN, lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: `1px dashed ${GREEN_BORDER}` }}>
+                        <p style={{ fontSize: 12, color: '#888', lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: '1px dashed #D0D0D0' }}>
                           {a.why}
                         </p>
                       )}
@@ -305,10 +303,10 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
               }}
               style={{
                 marginTop: 16, width: '100%', padding: '12px', borderRadius: 8, fontSize: 13, fontWeight: 900,
-                border: isDone ? `1.5px solid ${GREEN_BORDER}` : 'none',
+                border: isDone ? '1.5px solid #D0D0D0' : 'none',
                 cursor: 'pointer', transition: 'all .15s',
-                background: isDone ? GREEN_LIGHT : GREEN,
-                color: isDone ? GREEN : '#fff',
+                background: isDone ? '#EFEFEF' : GREEN,
+                color: isDone ? '#888' : '#fff',
                 letterSpacing: '-0.01em',
               }}
             >
