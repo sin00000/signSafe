@@ -1,12 +1,13 @@
 'use client';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { FormData, RentAnalysisResult, AnalysisStatus } from '@/types/rent';
+import { FormData, RentAnalysisResult, AnalysisStatus, RiskLevel } from '@/types/rent';
 import { formatWon } from '@/lib/formatMoney';
 import { currentYearMonth } from '@/lib/dateUtils';
 import { fetchRentAnalysis } from '@/lib/rentApi';
 import RiskResultCard from '@/components/RiskResultCard';
 import GuideView from '@/components/GuideView';
 import { CHECKS_BY_STEP } from '@/lib/checkData';
+import { RiskSignMini } from '@/components/SignFrame';
 
 type Phase = 'guide' | 'result';
 
@@ -34,65 +35,85 @@ const DEFAULT_FORM: FormData = {
   canInsure: null,
 };
 
+// 분석 결과 있으면 그 레벨, 없으면 체크 진행률로 실시간 판별
+function liveRiskLevel(
+  result: RentAnalysisResult | null,
+  status: AnalysisStatus,
+  checkedCount: number,
+  totalChecks: number,
+): RiskLevel {
+  if (result && (status === 'success' || status === 'noData')) return result.riskLevel;
+  if (checkedCount === 0) return 'gray';
+  const pct = (checkedCount / totalChecks) * 100;
+  if (pct < 40) return 'red';
+  if (pct < 80) return 'yellow';
+  return 'blue';
+}
+
 interface AppHeaderProps {
   result: RentAnalysisResult | null;
   status: AnalysisStatus;
+  currentLevel: RiskLevel;
   phase: Phase;
   onGoToGuide: () => void;
   onReset: () => void;
 }
 
-function AppHeader({ result, status, phase, onGoToGuide, onReset }: AppHeaderProps) {
-  const hasResult = result && (status === 'success');
+function AppHeader({ result, status, currentLevel, phase, onGoToGuide, onReset }: AppHeaderProps) {
+  const hasResult = result && status === 'success';
   const refMedian = hasResult
     ? (result.jeonseCount >= 3 ? result.medianJeonseDeposit : result.medianAllDeposit)
     : null;
 
-  const ratioColor = hasResult && result.depositRatio != null
-    ? result.depositRatio >= 130 ? '#FF8080'
-    : result.depositRatio >= 110 ? '#FFD43B'
-    : '#5EEAD4'
-    : 'rgba(255,255,255,0.4)';
-
   return (
-    <header style={{ background: '#111', color: '#fff', padding: '12px 18px 10px', flexShrink: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>계약전야</span>
-        <div style={{ display: 'flex', gap: 6 }}>
+    <header style={{ background: '#111', color: '#fff', padding: '11px 16px 10px', flexShrink: 0 }}>
+      {/* 상단 행: 앱 이름 | 위험도 표지판 + 버튼 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>계약전야</span>
+        <RiskSignMini level={currentLevel} />
+        <div style={{ display: 'flex', gap: 6, marginLeft: 6 }}>
           {phase === 'result' && (
             <button onClick={onGoToGuide} style={{ fontSize: 11, fontWeight: 700, color: '#fff', border: '1px solid rgba(255,255,255,0.3)', padding: '4px 10px', borderRadius: 4, background: 'none', cursor: 'pointer' }}>체크리스트로</button>
           )}
-          <button onClick={onReset} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', border: 'none', padding: '4px 2px', background: 'none', cursor: 'pointer' }}>처음부터</button>
+          <button onClick={onReset} style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', border: 'none', padding: '4px 0', background: 'none', cursor: 'pointer' }}>처음부터</button>
         </div>
       </div>
 
-      {/* 분석 결과 compact (위험도 레벨 제외, 수치만) */}
+      {/* 하단 행: 분석 수치 chips (분석 완료 시에만) */}
       {hasResult && (
-        <div style={{ marginTop: 9, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 8, display: 'flex', gap: 5, flexWrap: 'wrap' }}>
           {result.depositRatio != null && (
-            <span style={{ fontSize: 11, fontWeight: 900, color: ratioColor, background: 'rgba(255,255,255,0.07)', padding: '3px 8px', borderRadius: 4 }}>
+            <span style={{
+              fontSize: 11, fontWeight: 900, padding: '3px 8px', borderRadius: 4,
+              background: 'rgba(255,255,255,0.07)',
+              color: result.depositRatio >= 130 ? '#FF8080' : result.depositRatio >= 110 ? '#FFD43B' : '#5EEAD4',
+            }}>
               시세 대비 {result.depositRatio}%
             </span>
           )}
           {result.jeonseRate != null && (
-            <span style={{ fontSize: 11, fontWeight: 900, color: result.jeonseRate >= 80 ? '#FF8080' : result.jeonseRate >= 70 ? '#FFD43B' : '#5EEAD4', background: 'rgba(255,255,255,0.07)', padding: '3px 8px', borderRadius: 4 }}>
+            <span style={{
+              fontSize: 11, fontWeight: 900, padding: '3px 8px', borderRadius: 4,
+              background: 'rgba(255,255,255,0.07)',
+              color: result.jeonseRate >= 80 ? '#FF8080' : result.jeonseRate >= 70 ? '#FFD43B' : '#5EEAD4',
+            }}>
               전세가율 {result.jeonseRate}%
             </span>
           )}
           {refMedian != null && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', background: 'rgba(255,255,255,0.07)', padding: '3px 8px', borderRadius: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }}>
               시세 중앙값 {formatWon(refMedian)}
             </span>
           )}
           {result.jeonseCount > 0 && (
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)' }}>
               전세 {result.jeonseCount}건
             </span>
           )}
         </div>
       )}
       {status === 'loading' && (
-        <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>실거래가 조회 중…</div>
+        <div style={{ marginTop: 7, fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 700 }}>실거래가 조회 중…</div>
       )}
     </header>
   );
@@ -199,11 +220,13 @@ export default function Page() {
     autoCheckedRef.current = new Set();
   };
 
-  const totalChecks = CHECKS_BY_STEP.flat().length;
+  const totalChecks  = CHECKS_BY_STEP.flat().length;
+  const currentLevel = liveRiskLevel(result, status, checkedIds.size, totalChecks);
 
   const headerProps: AppHeaderProps = {
     result,
     status,
+    currentLevel,
     phase,
     onGoToGuide: () => setPhase('guide'),
     onReset: resetAll,

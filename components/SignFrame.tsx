@@ -86,6 +86,32 @@ export function RiskSign({ level, label }: RiskSignProps) {
   );
 }
 
+/* ── 헤더용 미니 위험도 표지판 ─────────── */
+export function RiskSignMini({ level }: { level: 'red' | 'yellow' | 'blue' | 'gray' }) {
+  const MAP = {
+    red:    { bg: '#CC1100', fg: '#fff',  label: '위험' },
+    yellow: { bg: '#F5B400', fg: '#111',  label: '주의' },
+    blue:   { bg: '#009688', fg: '#fff',  label: '안전' },
+    gray:   { bg: '#666',    fg: '#fff',  label: '??' },
+  };
+  const s = MAP[level] ?? MAP.gray;
+  return (
+    <div style={{
+      border: '2.5px solid rgba(255,255,255,0.35)',
+      borderRadius: 3,
+      overflow: 'hidden',
+      flexShrink: 0,
+      transition: 'all 0.45s ease',
+      minWidth: 46,
+    }}>
+      <div style={{ background: '#111', fontSize: 7, fontWeight: 900, color: 'rgba(255,255,255,0.6)', padding: '2px 6px', textAlign: 'center', letterSpacing: '0.14em' }}>위험도</div>
+      <div style={{ background: s.bg, padding: '5px 8px', textAlign: 'center', transition: 'background 0.45s ease' }}>
+        <span style={{ fontSize: 13, fontWeight: 900, color: s.fg, letterSpacing: '-0.01em' }}>{s.label}</span>
+      </div>
+    </div>
+  );
+}
+
 /* ── 체크항목용 소형 신호등 표지 ────────── */
 interface StatusDotProps { checked: boolean; size?: number; }
 export function StatusDot({ checked, size = 14 }: StatusDotProps) {
