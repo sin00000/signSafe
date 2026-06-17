@@ -20,17 +20,68 @@ interface CalcProps {
   onRunAnalysis: (f: FormData) => void;
 }
 
-const STATUS_COLOR: Record<CheckStatus, string> = {
-  danger: '#CC1100', caution: '#B07B00', done: '#007A6E', pending: '#999',
-};
-const STATUS_BG: Record<CheckStatus, string> = {
-  danger: '#FFF0EE', caution: '#FFF8E2', done: '#EDFAF7', pending: '#F5F5F5',
-};
-const STATUS_BORDER: Record<CheckStatus, string> = {
-  danger: '#F5C5BF', caution: '#E8D070', done: '#A8E6DF', pending: '#E0E0E0',
-};
+const GREEN = '#009688';
+const GREEN_LIGHT = '#EDFAF7';
+const GREEN_BORDER = '#B2DFDB';
 
-/* ── 가로 스텝 진행 바 (노선도 대체) ─────────────────────────── */
+/* ── 히어로 / 랜딩 섹션 ───────────────────────────────────── */
+function HeroSection() {
+  return (
+    <div style={{ padding: '36px 0 32px', borderBottom: '2px solid #111' }}>
+      <p style={{ fontSize: 11, fontWeight: 700, color: GREEN, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
+        계약전야 · 전세 계약 내비게이션
+      </p>
+      <h1 style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: 16, wordBreak: 'keep-all' }}>
+        처음으로 집 살 때<br />사기 안당하는<br />체크리스트
+      </h1>
+      <p style={{ fontSize: 14, color: '#444', lineHeight: 1.75, marginBottom: 20, wordBreak: 'keep-all' }}>
+        전세 계약 전 꼭 확인해야 할 항목을 7단계 21개로 정리했습니다.<br />
+        처음 집을 구하는 분도 빠짐없이 확인할 수 있도록 만들었습니다.
+      </p>
+
+      {/* 누구를 위한 건지 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+        {[
+          '처음으로 전세 계약을 하는 분',
+          '전세사기가 걱정되는 분',
+          '계약 전 빠진 게 없는지 확인하고 싶은 분',
+        ].map((t, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: GREEN, flexShrink: 0 }} />
+            <span style={{ fontSize: 13, color: '#333', fontWeight: 600 }}>{t}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 신뢰 컨텍스트 */}
+      <div style={{ background: '#F7F7F7', borderRadius: 8, padding: '12px 14px', marginBottom: 20, borderLeft: `3px solid ${GREEN}` }}>
+        <p style={{ fontSize: 12, color: '#555', lineHeight: 1.7, margin: 0 }}>
+          현직 공인중개사와 함께 검토한 항목입니다. 실제 전세사기 패턴을 분석해 선별했으며, 국토교통부 실거래가 데이터로 시세를 직접 비교합니다.
+        </p>
+      </div>
+
+      {/* 범례 */}
+      <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 900, background: '#111', color: '#fff', padding: '2px 7px', borderRadius: 3 }}>필수</span>
+          <span style={{ fontSize: 11, color: '#555' }}>반드시 확인</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 16, height: 16, borderRadius: '50%', background: GREEN, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <span style={{ fontSize: 11, color: '#555' }}>확인 완료</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, border: '1px solid #BDBDBD', color: '#777', padding: '2px 7px', borderRadius: 3 }}>알고 있어요</span>
+          <span style={{ fontSize: 11, color: '#555' }}>주의 항목 인지</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 가로 스텝 바 ─────────────────────────────────────────── */
 function StepBar({ confirmedIds, activeStep, onSelect }: {
   confirmedIds: Set<string>;
   activeStep: number;
@@ -53,12 +104,12 @@ function StepBar({ confirmedIds, activeStep, onSelect }: {
             }}>
               <div style={{
                 width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
-                background: done ? '#007A6E' : partial ? '#B07B00' : '#DEDEDE',
+                background: done ? GREEN : partial ? '#333' : '#DEDEDE',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {done
                   ? <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                  : <span style={{ fontSize: 8, fontWeight: 900, color: partial ? '#7A5900' : '#999' }}>{si + 1}</span>
+                  : <span style={{ fontSize: 8, fontWeight: 900, color: partial ? '#fff' : '#999' }}>{si + 1}</span>
                 }
               </div>
               <span style={{ fontSize: 11, fontWeight: active ? 800 : 400, color: active ? '#111' : '#999', whiteSpace: 'nowrap' }}>{name}</span>
@@ -83,13 +134,14 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 }) {
   const [actionsDone, setActionsDone] = useState(new Set<number>());
 
-  const isDone     = confirmed.has(check.id);
-  const isSkipped  = isDone && skipped.has(check.id);
-  const status     = isDone ? 'done' : check.risk;
-  const accent     = STATUS_COLOR[status];
-  const cardBg     = STATUS_BG[status];
-  const cardBorder = STATUS_BORDER[status];
+  const isDone      = confirmed.has(check.id);
+  const isSkipped   = isDone && skipped.has(check.id);
+  const isDanger    = check.risk === 'danger';
   const calcRenderer = CALC_RENDERERS[check.id];
+
+  const cardBg     = isDone ? GREEN_LIGHT : '#fff';
+  const cardBorder = isDone ? GREEN_BORDER : '#E0E0E0';
+  const textColor  = isDone ? GREEN : '#111';
 
   const toggleAction = (i: number) => {
     setActionsDone(p => {
@@ -100,22 +152,15 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
     });
   };
 
-  const badgeLabel = isDone
-    ? (isSkipped ? '건너뜀' : '완료')
-    : check.risk === 'danger' ? '위험' : '주의';
-
   return (
     <div style={{
       marginBottom: 7, background: cardBg, borderRadius: 10, overflow: 'hidden',
       border: `1.5px solid ${cardBorder}`,
-      boxShadow: open ? '0 3px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow .15s',
+      boxShadow: open ? '0 2px 10px rgba(0,0,0,0.06)' : 'none', transition: 'box-shadow .15s',
     }}>
-      {/* 접힌 헤더 — 60px 고정 */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        padding: '0 14px', height: 60, userSelect: 'none',
-      }}>
-        {/* 직접 체크 버튼 — 카드 열지 않고도 완료 처리 */}
+      {/* 접힌 헤더 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 60, userSelect: 'none' }}>
+        {/* 체크 버튼 */}
         <button
           onClick={e => {
             e.stopPropagation();
@@ -126,8 +171,8 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           aria-label="완료 체크"
           style={{
             width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-            border: isDone ? 'none' : `2px solid ${accent}`,
-            background: isDone ? accent : 'transparent',
+            border: isDone ? 'none' : `2px solid #BDBDBD`,
+            background: isDone ? GREEN : 'transparent',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', transition: 'all .15s', padding: 0,
           }}
@@ -135,62 +180,62 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           {isDone && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
         </button>
 
-        {/* 제목 — 클릭하면 펼치기 */}
-        <span
-          onClick={onOpen}
-          style={{
-            flex: 1, fontSize: 16, fontWeight: 800,
-            color: isDone ? accent : '#111',
-            wordBreak: 'keep-all', lineHeight: 1.3,
-            cursor: 'pointer',
-            textDecoration: isDone ? 'line-through' : 'none',
-            textDecorationColor: accent,
-          }}
-        >
+        {/* 제목 */}
+        <span onClick={onOpen} style={{
+          flex: 1, fontSize: 16, fontWeight: 800, color: textColor,
+          wordBreak: 'keep-all', lineHeight: 1.3, cursor: 'pointer',
+          textDecoration: isDone ? 'line-through' : 'none',
+          textDecorationColor: GREEN,
+        }}>
           {check.q}
         </span>
 
-        <svg onClick={onOpen} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5, cursor: 'pointer' }}>
+        {/* 뱃지 영역 */}
+        {!isDone && isDanger && (
+          <span style={{ fontSize: 10, fontWeight: 900, background: '#111', color: '#fff', padding: '3px 7px', borderRadius: 3, flexShrink: 0 }}>
+            필수
+          </span>
+        )}
+        {!isDone && !isDanger && (
+          <button
+            onClick={e => { e.stopPropagation(); onToggle(check.id); }}
+            style={{ fontSize: 10, fontWeight: 700, border: '1px solid #BDBDBD', color: '#777', padding: '3px 7px', borderRadius: 3, background: 'none', cursor: 'pointer', flexShrink: 0 }}
+          >
+            알고 있어요
+          </button>
+        )}
+        {isDone && isSkipped && (
+          <span style={{ fontSize: 10, fontWeight: 700, color: GREEN, border: `1px solid ${GREEN_BORDER}`, padding: '2px 6px', borderRadius: 3, flexShrink: 0 }}>
+            건너뜀
+          </span>
+        )}
+
+        <svg onClick={onOpen} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#BDBDBD" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, cursor: 'pointer' }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </div>
 
       {/* 펼친 내용 */}
       {open && (
-        <div style={{ borderTop: `1px solid ${cardBorder}` }}>
+        <div style={{ borderTop: '1px solid #E8E8E8' }}>
 
-          {/* 설명 */}
-          <div style={{
-            padding: '16px 18px', borderBottom: `1px dashed ${cardBorder}`,
-            background: isDone ? 'rgba(0,150,136,0.06)' : 'rgba(0,0,0,0.025)',
-          }}>
-            <div style={{
-              fontSize: 11, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase',
-              color: accent, marginBottom: 8,
-            }}>
+          {/* 결과 설명 */}
+          <div style={{ padding: '14px 18px', borderBottom: '1px dashed #E8E8E8', background: isDone ? 'rgba(0,150,136,0.04)' : '#FAFAFA' }}>
+            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: isDone ? GREEN : '#888', marginBottom: 6 }}>
               {isDone ? '확인 완료' : '미확인 시 위험'}
             </div>
-            <p style={{
-              fontSize: 15, fontWeight: 900, lineHeight: 1.75, wordBreak: 'keep-all',
-              color: isDone ? accent : '#222',
-            }}>
+            <p style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.7, wordBreak: 'keep-all', color: isDone ? GREEN : '#222' }}>
               {isDone ? check.whyItMatters : check.consequence}
             </p>
           </div>
 
           {/* 계산기 */}
           {calcRenderer && (
-            <div style={{ padding: '14px 16px', borderBottom: `1px dashed ${cardBorder}` }}>
-              <div style={{
-                fontSize: 10, fontWeight: 900, color: '#009688', letterSpacing: '0.12em',
-                textTransform: 'uppercase', marginBottom: 10,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              }}>
+            <div style={{ padding: '14px 16px', borderBottom: '1px dashed #E8E8E8' }}>
+              <div style={{ fontSize: 10, fontWeight: 900, color: GREEN, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span>계산</span>
                 {isSkipped && (
-                  <span style={{ fontSize: 10, fontWeight: 900, color: '#888', background: '#F0F0F0', borderRadius: 4, padding: '3px 8px', letterSpacing: 0 }}>
-                    정보 없이 건너뜀
-                  </span>
+                  <span style={{ fontSize: 10, fontWeight: 900, color: '#888', background: '#F0F0F0', borderRadius: 4, padding: '3px 8px', letterSpacing: 0 }}>정보 없이 건너뜀</span>
                 )}
               </div>
               {calcRenderer(calcProps)}
@@ -198,9 +243,9 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                 onClick={e => { e.stopPropagation(); onToggleSkip(check.id); }}
                 style={{
                   marginTop: 10, width: '100%', padding: '9px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-                  border: `1.5px solid ${isSkipped ? '#009688' : '#E0E0E0'}`,
-                  background: isSkipped ? '#F0FAFA' : '#fff',
-                  color: isSkipped ? '#009688' : '#888', cursor: 'pointer', transition: 'all .15s',
+                  border: `1.5px solid ${isSkipped ? GREEN : '#E0E0E0'}`,
+                  background: isSkipped ? GREEN_LIGHT : '#fff',
+                  color: isSkipped ? GREEN : '#888', cursor: 'pointer', transition: 'all .15s',
                 }}
               >
                 {isSkipped ? '다시 입력하기' : '정보 없이 건너뛰고 확인 완료'}
@@ -210,10 +255,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 
           {/* 할 일 */}
           <div style={{ padding: '16px 18px' }}>
-            <div style={{
-              fontSize: 10, fontWeight: 900, color: '#111', letterSpacing: '0.12em',
-              textTransform: 'uppercase', marginBottom: 12,
-            }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#111', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
               지금 할 일
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -252,18 +294,18 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                     <button onClick={e => { e.stopPropagation(); toggleAction(i); }} aria-label="할 일 완료 체크" style={{
                       width: 22, height: 22, borderRadius: 6, flexShrink: 0, marginTop: 2,
                       border: adone ? 'none' : '2px solid #CFCFCF', cursor: 'pointer',
-                      background: adone ? '#009688' : '#fff',
+                      background: adone ? GREEN : '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       transition: 'all .15s',
                     }}>
                       {adone && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>}
                     </button>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: adone ? '#009688' : '#111', lineHeight: 1.65, transition: 'all .15s' }}>
+                      <p style={{ fontSize: 14, fontWeight: 600, color: adone ? GREEN : '#111', lineHeight: 1.65, transition: 'all .15s' }}>
                         {a.text}
                       </p>
                       {adone && (
-                        <p style={{ fontSize: 12, color: '#009688', lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: '1px dashed #A8E6DF' }}>
+                        <p style={{ fontSize: 12, color: GREEN, lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: `1px dashed ${GREEN_BORDER}` }}>
                           {a.why}
                         </p>
                       )}
@@ -272,7 +314,6 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                 );
               })}
             </div>
-            {/* 대주제 완료 버튼 */}
             <button
               onClick={e => {
                 e.stopPropagation();
@@ -282,9 +323,10 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
               }}
               style={{
                 marginTop: 16, width: '100%', padding: '12px', borderRadius: 8, fontSize: 13, fontWeight: 900,
-                border: 'none', cursor: 'pointer', transition: 'all .15s',
-                background: isDone ? 'rgba(0,0,0,0.06)' : accent,
-                color: isDone ? accent : '#fff',
+                border: isDone ? `1.5px solid ${GREEN_BORDER}` : 'none',
+                cursor: 'pointer', transition: 'all .15s',
+                background: isDone ? GREEN_LIGHT : GREEN,
+                color: isDone ? GREEN : '#fff',
                 letterSpacing: '-0.01em',
               }}
             >
@@ -310,18 +352,12 @@ function AppendixSection({ result }: { result: RentAnalysisResult | null }) {
           cursor: 'pointer', userSelect: 'none',
         }}
       >
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#888' }}>
-          부록 — 질문·특약·용어 정리
-        </span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#888' }}>부록 — 질문·특약·용어 정리</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#BDBDBD" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </button>
-      {open && (
-        <div style={{ background: '#fff' }}>
-          <GuideToolsBar result={result} />
-        </div>
-      )}
+      {open && <div style={{ background: '#fff' }}><GuideToolsBar result={result} /></div>}
     </div>
   );
 }
@@ -377,51 +413,58 @@ export default function GuideView({
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <StepBar confirmedIds={confirmed} activeStep={activeStep} onSelect={scrollToStep} />
 
-      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 60px' }}>
-        {STEP_NAMES.map((name, si) => (
-          <div key={si} id={`guide-step-${si}`} style={{ marginBottom: 28 }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
-              paddingBottom: 8, borderBottom: '1.5px solid #111',
-            }}>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '0 14px 60px' }}>
+
+        {/* 랜딩 섹션 */}
+        <HeroSection />
+
+        {/* 체크리스트 */}
+        <div style={{ paddingTop: 24 }}>
+          {STEP_NAMES.map((name, si) => (
+            <div key={si} id={`guide-step-${si}`} style={{ marginBottom: 28 }}>
               <div style={{
-                width: 26, height: 26, background: '#111', borderRadius: 4, flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
+                paddingBottom: 8, borderBottom: '1.5px solid #111',
               }}>
-                <span style={{ fontSize: 12, fontWeight: 900, color: '#fff' }}>{si + 1}</span>
+                <div style={{
+                  width: 26, height: 26, background: '#111', borderRadius: 4, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: '#fff' }}>{si + 1}</span>
+                </div>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#111' }}>{name}</span>
+                <span style={{ fontSize: 12, color: '#888', marginLeft: 'auto', fontWeight: 700 }}>
+                  {CHECKS_BY_STEP[si].filter(c => confirmed.has(c.id)).length}/{CHECKS_BY_STEP[si].length}
+                </span>
               </div>
-              <span style={{ fontSize: 16, fontWeight: 900, color: '#111' }}>{name}</span>
-              <span style={{ fontSize: 12, color: '#888', marginLeft: 'auto', fontWeight: 700 }}>
-                {CHECKS_BY_STEP[si].filter(c => confirmed.has(c.id)).length}/{CHECKS_BY_STEP[si].length}
-              </span>
+              {CHECKS_BY_STEP[si].map(check => (
+                <CheckCard
+                  key={check.id}
+                  check={check}
+                  confirmed={confirmed}
+                  onToggle={onToggle}
+                  skipped={skipped}
+                  onToggleSkip={onToggleSkip}
+                  calcProps={calcProps}
+                  open={openCardId === check.id}
+                  onOpen={() => handleOpen(check.id)}
+                />
+              ))}
             </div>
-            {CHECKS_BY_STEP[si].map(check => (
-              <CheckCard
-                key={check.id}
-                check={check}
-                confirmed={confirmed}
-                onToggle={onToggle}
-                skipped={skipped}
-                onToggleSkip={onToggleSkip}
-                calcProps={calcProps}
-                open={openCardId === check.id}
-                onOpen={() => handleOpen(check.id)}
-              />
-            ))}
+          ))}
+
+          <div style={{ textAlign: 'center', padding: '8px 0 28px' }}>
+            <button onClick={onResult} style={{
+              padding: '14px 36px', background: GREEN, color: '#fff',
+              border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 900,
+              cursor: 'pointer', letterSpacing: '-0.01em',
+            }}>
+              분석 결과 보기
+            </button>
           </div>
-        ))}
 
-        <div style={{ textAlign: 'center', padding: '8px 0 28px' }}>
-          <button onClick={onResult} style={{
-            padding: '14px 36px', background: '#009688', color: '#fff',
-            border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 900,
-            cursor: 'pointer', letterSpacing: '-0.01em',
-          }}>
-            분석 결과 보기
-          </button>
+          <AppendixSection result={analysisResult} />
         </div>
-
-        <AppendixSection result={analysisResult} />
       </div>
     </div>
   );

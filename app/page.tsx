@@ -3,12 +3,11 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FormData, RentAnalysisResult, AnalysisStatus } from '@/types/rent';
 import { currentYearMonth } from '@/lib/dateUtils';
 import { fetchRentAnalysis } from '@/lib/rentApi';
-import StartScreen from '@/components/StartScreen';
 import RiskResultCard from '@/components/RiskResultCard';
 import GuideView from '@/components/GuideView';
 import { CHECKS_BY_STEP } from '@/lib/checkData';
 
-type Phase = 'start' | 'guide' | 'result';
+type Phase = 'guide' | 'result';
 
 const DEFAULT_FORM: FormData = {
   address: '',
@@ -35,7 +34,7 @@ const DEFAULT_FORM: FormData = {
 };
 
 export default function Page() {
-  const [phase, setPhase]           = useState<Phase>('start');
+  const [phase, setPhase]           = useState<Phase>('guide');
   const [form, setForm]             = useState<FormData>(DEFAULT_FORM);
   const [result, setResult]         = useState<RentAnalysisResult | null>(null);
   const [status, setStatus]         = useState<AnalysisStatus>('idle');
@@ -91,7 +90,6 @@ export default function Page() {
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
-    // 수동으로 체크를 떼면 '건너뜀' 표시도 함께 해제
     setSkippedIds(prev => {
       if (!prev.has(id)) return prev;
       const n = new Set(prev);
@@ -100,7 +98,6 @@ export default function Page() {
     });
   };
 
-  // 추가정보·계산이 필요한 항목의 예외적인 '건너뛰기' — 정보 없이도 확인 완료로 처리
   const toggleSkip = (id: string) => {
     const willSkip = !skippedIds.has(id);
     setSkippedIds(prev => {
@@ -116,7 +113,13 @@ export default function Page() {
   };
 
   const resetAll = () => {
-    setPhase('start'); setForm(DEFAULT_FORM); setResult(null); setStatus('idle'); setErrorMsg('');
+    setPhase('guide');
+    setForm(DEFAULT_FORM);
+    setResult(null);
+    setStatus('idle');
+    setErrorMsg('');
+    setCheckedIds(new Set());
+    setSkippedIds(new Set());
   };
 
   const totalChecks = CHECKS_BY_STEP.flat().length;
@@ -143,8 +146,6 @@ export default function Page() {
     return () => { if (animRef.current !== null) cancelAnimationFrame(animRef.current); };
   }, [donePct]);
 
-  if (phase === 'start') return <StartScreen onStart={() => setPhase('guide')} />;
-
   const AppHeader = () => (
     <header style={{ background: '#111', color: '#fff', padding: '14px 20px 12px', flexShrink: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -170,7 +171,6 @@ export default function Page() {
     </header>
   );
 
-  /* ── 가이드 뷰 (HTML 파일과 동일한 레이아웃) ────────────── */
   if (phase === 'guide') {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -193,21 +193,16 @@ export default function Page() {
     );
   }
 
-  /* ── 분석 결과 뷰 ──────────────────────────────────────── */
-  if (phase === 'result') {
-    return (
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <AppHeader />
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 48px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
-          <RiskResultCard result={result} status={status} errorMessage={errorMsg} checkedCount={checkedIds.size} totalChecks={totalChecks} onBackToGuide={() => setPhase('guide')} />
-          <p style={{ textAlign: 'center', fontSize: 11, color: '#888', lineHeight: 1.8, marginTop: 24 }}>
-            이 서비스는 계약 전 위험 신호를 조기에 발견하기 위한 진단 도구입니다.<br />
-            전세사기 여부를 단정하거나 법적 판단을 제공하지 않습니다.
-          </p>
-        </div>
+  return (
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <AppHeader />
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 48px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
+        <RiskResultCard result={result} status={status} errorMessage={errorMsg} checkedCount={checkedIds.size} totalChecks={totalChecks} onBackToGuide={() => setPhase('guide')} />
+        <p style={{ textAlign: 'center', fontSize: 11, color: '#888', lineHeight: 1.8, marginTop: 24 }}>
+          이 서비스는 계약 전 위험 신호를 조기에 발견하기 위한 진단 도구입니다.<br />
+          전세사기 여부를 단정하거나 법적 판단을 제공하지 않습니다.
+        </p>
       </div>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
