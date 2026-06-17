@@ -191,33 +191,33 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
   const barColor = pct >= 80 ? '#009688' : pct >= 40 ? '#E6A000' : checkedCount === 0 ? '#999' : '#CC1100';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+    <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* 진행 요약 */}
-      <div style={{ padding: '16px 16px 14px', borderBottom: '1px solid #F0F0F0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#888' }}>전체 체크리스트 진행</span>
-          <span style={{ fontSize: 12, fontWeight: 900, color: '#111' }}>{checkedCount} / {totalChecks}개 · {pct}%</span>
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#888' }}>체크리스트 진행</span>
+          <span style={{ fontSize: 11, fontWeight: 900, color: '#111' }}>{checkedCount} / {totalChecks}개 · {pct}%</span>
         </div>
-        <div style={{ height: 5, background: '#EBEBEB', borderRadius: 999, overflow: 'hidden' }}>
+        <div style={{ height: 4, background: '#EBEBEB', borderRadius: 999, overflow: 'hidden' }}>
           <div style={{ height: '100%', borderRadius: 999, background: barColor, width: `${pct}%`, transition: 'width 0.45s ease' }} />
         </div>
       </div>
 
-      {/* 확인 완료 핵심 항목 */}
+      {/* 확인 완료 */}
       {confirmed.length > 0 && (
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-          <SectionLabel marker="✓" color="#009688" label={`확인 완료 — 안전 확보 ${confirmed.length}가지`} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 900, color: '#009688', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+            확인 완료 — 안전 확보 {confirmed.length}가지
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {confirmed.map(item => (
-              <div key={item.id} style={{ background: '#F0FAF8', border: '1.5px solid #B2DFDB', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                <div style={{ width: 18, height: 18, borderRadius: 4, background: '#009688', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0D3D35', marginBottom: 3, lineHeight: '18pt' }}>
+              <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <span style={{ fontSize: 11, color: '#009688', fontWeight: 900, flexShrink: 0, marginTop: 1 }}>✓</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: '20pt' }}>
                     {CHECKLIST_LABEL[item.id] ?? item.q}
                   </div>
-                  <p style={{ fontSize: 11, color: '#4A7A70', lineHeight: '18pt', margin: 0 }}>
+                  <p style={{ fontSize: 11, color: '#666', lineHeight: '18pt', margin: '2px 0 0' }}>
                     {CHECKED_SAFETY_MEANING[item.id] ?? item.whyItMatters}
                   </p>
                 </div>
@@ -227,19 +227,21 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
         </div>
       )}
 
-      {/* 미확인 핵심 항목 */}
+      {/* 미확인 항목 */}
       {pending.length > 0 && (
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-          <SectionLabel marker="!" color="#CC1100" label={`미확인 — 핵심 항목 ${pending.length}가지`} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 900, color: '#CC1100', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+            미확인 — 핵심 항목 {pending.length}가지
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {pending.map(item => (
-              <div key={item.id} style={{ background: '#FFF8F7', border: '1.5px solid #FFCDD2', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                <div style={{ width: 18, height: 18, borderRadius: 4, border: '1.5px solid #FFAAA0', flexShrink: 0, background: '#fff', marginTop: 1 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#333', marginBottom: 3, lineHeight: '18pt' }}>
+              <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <span style={{ fontSize: 11, color: '#CC1100', fontWeight: 900, flexShrink: 0, marginTop: 1 }}>·</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#333', lineHeight: '20pt' }}>
                     {CHECKLIST_LABEL[item.id] ?? item.q}
                   </div>
-                  <p style={{ fontSize: 11, color: '#B03000', lineHeight: '18pt', margin: 0 }}>{item.consequence}</p>
+                  <p style={{ fontSize: 11, color: '#888', lineHeight: '18pt', margin: '2px 0 0' }}>{item.consequence}</p>
                 </div>
               </div>
             ))}
@@ -247,23 +249,20 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
         </div>
       )}
 
-      {/* 수치 분석 CTA */}
-      <div style={{ padding: '14px 16px 16px' }}>
-        <div style={{ background: '#FAFAFA', border: '1.5px solid #E8E8E8', borderRadius: 8, padding: '12px 14px' }}>
-          <div style={{ fontSize: 10, fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 5 }}>수치 분석 아직 없음</div>
-          <p style={{ fontSize: 12, color: '#666', lineHeight: '20pt', margin: '0 0 10px' }}>
-            체크리스트 2단계에서 <b style={{ color: '#333' }}>주소 · 보증금 · 계약월</b>을 입력하면<br />
-            주변 실거래가 기반 시세 대비 비율과 전세가율 분석이 추가됩니다.
-          </p>
-          {onBackToGuide && (
-            <button
-              onClick={onBackToGuide}
-              style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#009688', border: 'none', padding: '7px 14px', borderRadius: 6, cursor: 'pointer' }}
-            >
-              체크리스트로 가서 입력하기 →
-            </button>
-          )}
-        </div>
+      {/* 수치 분석 안내 */}
+      <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 16 }}>
+        <p style={{ fontSize: 12, color: '#888', lineHeight: '20pt', margin: '0 0 10px' }}>
+          체크리스트 2단계에서 <b style={{ color: '#333' }}>주소 · 보증금 · 계약월</b>을 입력하면
+          주변 실거래가 기반 시세 비교와 전세가율 분석이 추가됩니다.
+        </p>
+        {onBackToGuide && (
+          <button
+            onClick={onBackToGuide}
+            style={{ fontSize: 12, fontWeight: 800, color: '#009688', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            체크리스트로 가서 입력하기 →
+          </button>
+        )}
       </div>
     </div>
   );
