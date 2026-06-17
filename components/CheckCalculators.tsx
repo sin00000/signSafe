@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { FormData, RentAnalysisResult, AnalysisStatus } from '@/types/rent';
+import { FormData, RentAnalysisResult, AnalysisStatus, PropertyType } from '@/types/rent';
 import { formatWon, manWonToKorean } from '@/lib/formatMoney';
 import { formatYm } from '@/lib/dateUtils';
 
@@ -22,16 +22,16 @@ declare global {
 
 /* ── 공용 만원 입력 (콤마 표시) ─────────────────────────────── */
 function NumInput({
-  label, value, onChange, placeholder = '0', suffix = '만원',
+  label, value, onChange, placeholder = '0', suffix = '만원', koreanColor = '#999',
 }: {
   label: string;
   value: number | null;
   onChange: (v: number | null) => void;
   placeholder?: string;
   suffix?: string;
+  koreanColor?: string;
 }) {
   const [display, setDisplay] = useState(value !== null && value > 0 ? value.toLocaleString('ko-KR') : '');
-  // 같은 필드(보증금·집값 등)가 여러 카드에 공유되므로, 다른 카드에서 값이 바뀌면 함께 갱신
   useEffect(() => {
     setDisplay(value !== null && value > 0 ? value.toLocaleString('ko-KR') : '');
   }, [value]);
@@ -48,17 +48,23 @@ function NumInput({
 
   return (
     <div>
-      <label className="text-[11px] font-black text-[#111] block mb-1">{label}</label>
-      <div className="relative">
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#555', marginBottom: 4 }}>{label}</div>
+      <div style={{ position: 'relative' }}>
         <input
           type="text" inputMode="numeric" value={display}
           onChange={e => handle(e.target.value)} placeholder={placeholder}
           onClick={e => e.stopPropagation()}
-          className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] text-right font-bold focus:outline-none focus:border-[#009688] transition-colors pr-12"
+          style={{
+            width: '100%', border: 'none', borderBottom: '1.5px solid #DDD',
+            padding: '4px 28px 4px 0', fontSize: 13, textAlign: 'right', fontWeight: 700,
+            background: 'transparent', outline: 'none', color: '#111',
+          }}
+          onFocus={e => (e.currentTarget.style.borderBottomColor = '#333')}
+          onBlur={e => (e.currentTarget.style.borderBottomColor = '#DDD')}
         />
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-[#888] pointer-events-none">{suffix}</span>
+        <span style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: '#AAAAAA', pointerEvents: 'none' }}>{suffix}</span>
       </div>
-      {korean && <p className="text-[11px] text-[#009688] font-bold mt-1 pl-0.5">= {korean}</p>}
+      {korean && <p style={{ fontSize: 11, fontWeight: 700, marginTop: 3, color: koreanColor }}>= {korean}</p>}
     </div>
   );
 }
@@ -67,9 +73,9 @@ function NumInput({
 function CalcBox({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div onClick={e => e.stopPropagation()}
-      className="border-2 border-dashed border-[#009688] rounded-lg p-3.5 bg-white flex flex-col gap-3"
+      style={{ border: '1.5px solid #E0E0E0', borderRadius: 8, padding: '14px 14px 12px', background: '#fff', display: 'flex', flexDirection: 'column', gap: 12 }}
     >
-      <div className="text-[13px] font-black text-[#009688] tracking-tight">{title}</div>
+      <div style={{ fontSize: 13, fontWeight: 900, color: '#111', letterSpacing: '-0.02em' }}>{title}</div>
       {children}
     </div>
   );
@@ -87,6 +93,13 @@ function ResultLine({ label, value, tone }: { label: string; value: string; tone
 }
 
 const set = (form: FormData, patch: Partial<FormData>): FormData => ({ ...form, ...patch });
+
+const API_SERVICE: Record<PropertyType, { name: string; serviceId: string }> = {
+  apartment: { name: '아파트 전월세 실거래가 서비스', serviceId: 'RTMSDataSvcAptRent' },
+  villa:     { name: '연립·다세대 전월세 실거래가 서비스', serviceId: 'RTMSDataSvcRHRent' },
+  officetel: { name: '오피스텔 전월세 실거래가 서비스', serviceId: 'RTMSDataSvcOffiRent' },
+  detached:  { name: '단독·다가구 전월세 실거래가 서비스', serviceId: 'RTMSDataSvcSHRent' },
+};
 
 /* ────────────────────────────────────────────────────────────
  * s2i0 — 주변 시세 비교
@@ -133,64 +146,141 @@ export function PriceCompareCalc({
     onFormChange(set(form, { area: v != null ? Math.round(v * 3.3058 * 10) / 10 : null }));
   };
 
+  const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
+    { value: 'apartment', label: '아파트' },
+    { value: 'officetel', label: '오피스텔' },
+    { value: 'villa', label: '빌라' },
+    { value: 'detached', label: '단독·다가구' },
+  ];
+
+  const sub: React.CSSProperties = { fontSize: 10, color: '#BBBBBB', marginTop: 4, lineHeight: 1.5 };
+
+  // 필수 3개 필드가 모두 채워지면 자동 조회
+  const runKeyRef = useRef('');
+  const onRunRef = useRef(onRun);
+  onRunRef.current = onRun;
+  const formRef = useRef(form);
+  formRef.current = form;
+  useEffect(() => {
+    if (!ready) return;
+    const key = `${form.lawdCd}|${form.deposit}|${form.dealYm}|${form.propertyType ?? ''}`;
+    if (key === runKeyRef.current) return;
+    runKeyRef.current = key;
+    const t = setTimeout(() => onRunRef.current(formRef.current), 700);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, form.lawdCd, form.deposit, form.dealYm, form.propertyType]);
+
   return (
-    <CalcBox title="우리 동네 전세 시세 비교">
-      <div className="grid grid-cols-2 gap-2.5">
-        <div className="col-span-2">
-          <label className="text-[11px] font-black text-[#111] block mb-1">주소</label>
-          <button
-            type="button" onClick={openPostcode}
-            className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] text-left transition-colors hover:border-[#009688] focus:outline-none focus:border-[#009688]"
-            style={{ background: '#fff', color: form.address ? '#111' : '#AAA', fontWeight: form.address ? 700 : 400 }}
-          >
-            {form.address || '우편번호로 주소 검색'}
-          </button>
-          {form.lawdCd
-            ? <p className="text-[11px] text-[#009688] mt-1 font-bold">{form.dongName ?? form.address.match(/[가-힣]+(구|시|군)/)?.[0]} 인식됨</p>
-            : <p className="text-[10px] text-[#888] mt-1">버튼을 눌러 우편번호로 검색하세요</p>}
+    <div
+      onClick={e => e.stopPropagation()}
+      style={{ border: '1.5px solid #E0E0E0', borderRadius: 8, padding: '14px 14px 12px', background: '#fff', display: 'flex', flexDirection: 'column', gap: 14 }}
+    >
+      <div style={{ fontSize: 13, fontWeight: 900, color: '#111', letterSpacing: '-0.02em' }}>우리 동네 전세 시세 비교</div>
+
+      {/* 건물 유형 */}
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#555', marginBottom: 6 }}>건물 유형</div>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+          {PROPERTY_TYPES.map(({ value, label }) => {
+            const selected = form.propertyType === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={e => { e.stopPropagation(); onFormChange(set(form, { propertyType: value })); }}
+                style={{
+                  fontSize: 11, fontWeight: 700, padding: '5px 10px', borderRadius: 4,
+                  border: `1.5px solid ${selected ? '#111' : '#D8D8D8'}`,
+                  background: selected ? '#111' : '#fff',
+                  color: selected ? '#fff' : '#888',
+                  cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
-        <NumInput label="내 보증금" value={form.deposit} onChange={v => onFormChange(set(form, { deposit: v }))} placeholder="예: 20,000" />
+        {form.propertyType
+          ? <p style={sub}>국토교통부 {API_SERVICE[form.propertyType].name} ({API_SERVICE[form.propertyType].serviceId})</p>
+          : <p style={sub}>건물 유형을 선택하면 국토교통부 실거래가 공공 API (data.go.kr)로 자동 조회합니다</p>
+        }
+      </div>
+
+      {/* 주소 */}
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#111', marginBottom: 4 }}>주소</div>
+        <button
+          type="button" onClick={openPostcode}
+          style={{
+            width: '100%', border: 'none', borderBottom: '1.5px solid #DDD',
+            padding: '4px 0', fontSize: 13, textAlign: 'left', background: 'transparent',
+            color: form.address ? '#111' : '#AAAAAA', fontWeight: form.address ? 700 : 400,
+            cursor: 'pointer',
+          }}
+        >
+          {form.address || '주소 검색 →'}
+        </button>
+        {form.lawdCd
+          ? <p style={{ ...sub, color: '#555' }}>{form.dongName ?? form.address} 인식됨</p>
+          : <p style={sub}>동·읍·면 단위로 조회합니다</p>
+        }
+      </div>
+
+      {/* 보증금 + 계약월 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div>
-          <label className="text-[11px] font-black text-[#111] block mb-1">계약 예정월</label>
+          <NumInput label="내 보증금" value={form.deposit} onChange={v => onFormChange(set(form, { deposit: v }))} placeholder="예: 20,000" koreanColor="#888" />
+          <p style={sub}>만원 단위</p>
+        </div>
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 700, color: '#111', display: 'block', marginBottom: 4 }}>계약 예정월</label>
           <input
             type="month" value={form.dealYm} onChange={e => onFormChange(set(form, { dealYm: e.target.value }))}
             onClick={e => e.stopPropagation()}
-            className="w-full border-2 border-[#E0E0E0] rounded px-3 py-2 text-[13px] font-bold focus:outline-none focus:border-[#009688] transition-colors"
+            style={{ width: '100%', border: 'none', borderBottom: '1.5px solid #DDD', padding: '4px 0', fontSize: 13, fontWeight: 700, background: 'transparent', outline: 'none', color: '#111' }}
+            onFocus={e => (e.currentTarget.style.borderBottomColor = '#333')}
+            onBlur={e => (e.currentTarget.style.borderBottomColor = '#DDD')}
           />
+          <p style={sub}>해당 월 포함 최근 4개월 거래 집계</p>
         </div>
       </div>
 
-      {/* 상세 입력 — 면적(평)·층수를 알려주면 비슷한 평형끼리 비교해 시세 정확도가 올라감 */}
+      {/* 상세 입력 */}
       <button
         type="button"
         onClick={e => { e.stopPropagation(); setShowDetail(v => !v); }}
-        className="text-[11px] font-bold text-[#009688] text-left hover:underline"
+        style={{ fontSize: 11, fontWeight: 600, color: '#AAAAAA', textAlign: 'left', background: 'none', border: 'none', borderBottom: '1px dashed #E0E0E0', cursor: 'pointer', padding: '0 0 6px', letterSpacing: '-0.01em' }}
       >
-        {showDetail ? '상세 입력 닫기' : '상세 입력 — 면적·층수를 알려주면 더 정확해져요'}
+        {showDetail ? '상세 입력 접기' : '상세 입력 — 면적·층수를 알면 더 정확해져요'}
       </button>
       {showDetail && (
-        <div className="grid grid-cols-2 gap-2.5 -mt-1">
-          <NumInput label="전용면적" value={pyeong} onChange={handlePyeong} placeholder="예: 24" suffix="평" />
-          <NumInput label="층수" value={form.floor} onChange={v => onFormChange(set(form, { floor: v }))} placeholder="예: 5" suffix="층" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: -6 }}>
+          <div>
+            <NumInput label="전용면적" value={pyeong} onChange={handlePyeong} placeholder="예: 24" suffix="평" koreanColor="#888" />
+            <p style={sub}>같은 평형 거래 우선 비교</p>
+          </div>
+          <div>
+            <NumInput label="층수" value={form.floor} onChange={v => onFormChange(set(form, { floor: v }))} placeholder="예: 5" suffix="층" koreanColor="#888" />
+            <p style={sub}>층수가 비슷한 거래 우선</p>
+          </div>
         </div>
       )}
-      {showDetail && (form.area || form.floor) && (
-        <p className="text-[11px] text-[#009688] font-bold leading-relaxed -mt-1">
-          비슷한 평형의 거래만 골라 비교하므로 시세 비교 정확도가 올라가요{form.area ? ` (${pyeong}평 ≈ ${form.area}㎡ 기준)` : ''}.
-        </p>
+
+      {/* 입력 / 결과 구분선 — 조회가 한 번이라도 실행된 후 표시 */}
+      {(status === 'loading' || status === 'success' || status === 'noData' || status === 'error') && (
+        <div style={{ borderTop: '1.5px solid #E8E8E8', margin: '0 -14px' }} />
       )}
 
-      <button
-        type="button" disabled={!ready || status === 'loading'}
-        onClick={e => { e.stopPropagation(); onRun(form); }}
-        className="w-full py-2.5 rounded text-[13px] font-black transition-colors"
-        style={ready ? { background: '#009688', color: '#fff' } : { background: '#E0E0E0', color: '#888', cursor: 'not-allowed' }}
-      >
-        {status === 'loading' ? '실거래가 조회 중…' : '주변 시세와 비교하기'}
-      </button>
+      {/* 조회 상태 */}
+      {status === 'loading' && (
+        <p style={{ fontSize: 11, color: '#AAAAAA', textAlign: 'center' }}>실거래가 조회 중…</p>
+      )}
 
+      {/* 결과 (색상 있음) */}
       {status === 'success' && result && result.medianJeonseDeposit != null && (
-        <div className="flex flex-col gap-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <ResultLine
             label={`최근 ${result.searchedMonths.length}개월 동네 평균 전세금`}
             value={`${formatWon(result.medianJeonseDeposit)}`}
@@ -205,36 +295,51 @@ export function PriceCompareCalc({
             }
             tone={result.depositRatio != null && result.depositRatio - 100 >= 30 ? 'danger' : result.depositRatio != null && result.depositRatio - 100 >= 10 ? 'caution' : 'safe'}
           />
-          <p className="text-[11px] text-[#888] leading-relaxed">{formatYm(result.dealYm)} 기준 · 거래 {result.transactionCount}건 (전세 {result.jeonseCount}건)</p>
-          <p className="text-[10px] text-[#AAA] leading-relaxed">
+          <p style={{ fontSize: 11, color: '#888', lineHeight: 1.6 }}>{formatYm(result.dealYm)} 기준 · 거래 {result.transactionCount}건 (전세 {result.jeonseCount}건)</p>
+          <p style={{ fontSize: 10, color: '#AAAAAA', lineHeight: 1.6 }}>
             {form.dongName ? `${form.dongName} 단위로 비교했습니다.` : '구 단위로 비교했습니다.'} 같은 동 거래가 10건 미만이면 구 전체로 넓혀 비교합니다.
           </p>
         </div>
       )}
       {status === 'noData' && (
-        <p className="text-[12px] text-[#888] font-bold text-center py-1">최근 거래 데이터가 부족해요. 단지명을 알면 더 정확해져요.</p>
+        <p style={{ fontSize: 12, color: '#888', fontWeight: 700, textAlign: 'center', padding: '4px 0' }}>최근 거래 데이터가 부족해요. 면적을 입력하면 더 정확해져요.</p>
       )}
       {status === 'error' && (
-        <p className="text-[12px] text-[#CC1100] font-bold text-center py-1">조회에 실패했어요. 잠시 후 다시 시도하세요.</p>
+        <p style={{ fontSize: 12, color: '#CC1100', fontWeight: 700, textAlign: 'center', padding: '4px 0' }}>조회에 실패했어요. 잠시 후 다시 시도하세요.</p>
       )}
-      <a
-        href="https://hogangnono.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-between mt-2 px-3 py-2 rounded-md no-underline transition-opacity hover:opacity-80"
-        style={{ background: '#009688' }}
-      >
-        <span className="text-[12px] font-bold text-white">단지별 시세 더 보기 — 호갱노노</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-          <polyline points="15 3 21 3 21 9"/>
-          <line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
-      </a>
-      <p className="text-[10px] text-[#AAA] leading-relaxed mt-0.5">
-        출처: 국토교통부 실거래가 공개시스템 (data.go.kr) · 전월세 실거래가 API · 최근 4개월 거래 집계
-      </p>
-    </CalcBox>
+
+      {/* API 출처 — 결과 조회 후 표시 */}
+      {(status === 'success' || status === 'noData') && form.propertyType && (
+        <p style={{ fontSize: 11, color: '#666', lineHeight: 1.6 }}>
+          국토교통부 {API_SERVICE[form.propertyType].name}을 사용합니다
+          <span style={{ color: '#AAAAAA' }}> · {API_SERVICE[form.propertyType].serviceId} · data.go.kr</span>
+        </p>
+      )}
+
+      {/* 호갱노노 — 회색 박스, 아파트는 강조 문구 */}
+      <div style={{ background: '#F5F5F5', borderRadius: 6, padding: '10px 12px' }}>
+        <p style={{ fontSize: 11, color: '#555', lineHeight: 1.65, margin: '0 0 6px', wordBreak: 'keep-all' }}>
+          {form.propertyType === 'apartment'
+            ? '아파트는 단지별 시세가 중요해요. 같은 단지 안에서도 층·향·평형에 따라 차이가 크니, 아파트는 여기서 보는 게 더 정확해요.'
+            : '건물별·지역별 더 자세한 시세는 호갱노노에서 확인할 수 있어요.'
+          }
+        </p>
+        <a
+          href="https://hogangnono.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: 11, fontWeight: 700, color: '#444', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+        >
+          호갱노노 바로가기
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </a>
+      </div>
+
+    </div>
   );
 }
 
@@ -250,8 +355,8 @@ export function HousePriceCalc({ form, onFormChange }: { form: FormData; onFormC
         onChange={v => onFormChange(set(form, { housePrice: v }))}
         placeholder="예: 50,000"
       />
-      <p className="text-[11px] text-[#009688] font-bold leading-relaxed">
-        입력하면 다음 단계 &apos;전세가율 계산&apos;에 자동으로 사용됩니다.
+      <p style={{ fontSize: 11, color: '#AAAAAA', lineHeight: 1.55, letterSpacing: '-0.01em' }}>
+        입력하면 전세가율·근저당 계산에 자동으로 연동됩니다. 외부 API 없이 직접 입력합니다. KB부동산·호갱노노·실거래가공개시스템에서 확인한 값을 쓰세요.
       </p>
     </CalcBox>
   );
@@ -277,8 +382,9 @@ export function JeonseRateCalc({ form, onFormChange }: { form: FormData; onFormC
           tone={tone}
         />
       ) : (
-        <p className="text-[12px] text-[#888] text-center py-1">보증금과 집값을 입력하면 전세가율이 자동으로 계산돼요.</p>
+        <p style={{ fontSize: 12, color: '#AAAAAA', textAlign: 'center', padding: '4px 0' }}>보증금과 집값을 입력하면 전세가율이 자동으로 계산돼요.</p>
       )}
+      <p style={{ fontSize: 10, color: '#CCCCCC', lineHeight: 1.5, letterSpacing: '-0.01em' }}>외부 API 없이 입력값으로만 계산합니다 · 공식: 보증금 ÷ 집값 × 100</p>
     </CalcBox>
   );
 }
@@ -301,8 +407,8 @@ export function MortgageCalc({ form, onFormChange }: { form: FormData; onFormCha
           onClick={e => { e.stopPropagation(); onFormChange(set(form, form.hasMortgage === false ? { mortgageAmount: null, hasMortgage: null } : { mortgageAmount: 0, hasMortgage: false })); }}
           className="mt-1.5 text-[11px] font-bold rounded px-2.5 py-1.5 border-2 transition-colors"
           style={form.hasMortgage === false
-            ? { color: '#fff', background: '#009688', borderColor: '#009688' }
-            : { color: '#009688', background: '#fff', borderColor: '#009688' }}
+            ? { color: '#fff', background: '#333', borderColor: '#333' }
+            : { color: '#555', background: '#fff', borderColor: '#D8D8D8' }}
         >
           {form.hasMortgage === false ? '✓ 등기부 확인 — 근저당 없음' : '등기부등본에서 근저당 없음을 확인했어요'}
         </button>
@@ -318,8 +424,9 @@ export function MortgageCalc({ form, onFormChange }: { form: FormData; onFormCha
           tone={tone}
         />
       ) : (
-        <p className="text-[12px] text-[#888] text-center py-1">채권최고액·보증금·집값을 입력하면 위험도가 자동으로 계산돼요.</p>
+        <p style={{ fontSize: 12, color: '#AAAAAA', textAlign: 'center', padding: '4px 0' }}>채권최고액·보증금·집값을 입력하면 위험도가 자동으로 계산돼요.</p>
       )}
+      <p style={{ fontSize: 10, color: '#CCCCCC', lineHeight: 1.5, letterSpacing: '-0.01em' }}>외부 API 없이 입력값으로만 계산합니다 · 채권최고액은 등기부등본 을구에서 확인</p>
     </CalcBox>
   );
 }

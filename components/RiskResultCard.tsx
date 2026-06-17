@@ -26,6 +26,7 @@ const CHECKLIST_LABEL: Record<string, string> = {
   s3i0: '계약 당일 등기부등본 재발급 확인',
   s3i1: '근저당(채권최고액) 확인',
   s3i2: '압류·처분금지 없음 확인',
+  s3i3: '갑구 임차권등기·소유자 변동 확인',
   s4i0: '전세보증보험 가입 가능 여부 확인',
   s5i0: '계약서 불리한 특약 없음 확인',
   s6i0: '이사 당일 전입신고 완료',
@@ -40,6 +41,7 @@ const CHECKED_SAFETY_MEANING: Record<string, string> = {
   s3i0: '계약 당일 등기부등본을 새로 발급해 최종 상태를 확인했습니다. 직전에 생긴 담보 추가나 소유권 변동을 막는 마지막 확인입니다.',
   s3i1: '근저당 채권최고액을 확인했습니다. (근저당+보증금)이 집값 이내인지 직접 계산해 경매 시 회수 가능성을 점검했습니다.',
   s3i2: '압류·처분금지가 없음을 확인했습니다. 집주인이 법적 분쟁 중이지 않아 갑작스러운 경매 위험이 없습니다.',
+  s3i3: '갑구에서 임차권등기와 최근 소유자 변동 이력을 확인했습니다. 이전 보증금 사고 이력이 없고, 수상한 명의 이전도 없는 집입니다.',
   s4i0: '전세보증보험 가입 가능 여부를 사전 조회했습니다. 집주인이 보증금을 돌려주지 않을 때를 대비한 최후 안전망 확보 여부를 확인했습니다.',
   s5i0: '계약서 특약을 직접 검토했습니다. 보증금 반환을 어렵게 만드는 독소 조항이 없음을 확인했습니다.',
   s6i0: '이사 당일 전입신고를 마쳐 대항력을 즉시 확보했습니다. 경매가 진행되더라도 보증금 우선 회수 권리를 갖게 됐습니다.',
@@ -110,11 +112,11 @@ function buildSafePoints(r: RentAnalysisResult): SafePoint[] {
 }
 
 /* ── 서브 컴포넌트들 ────────────────────────── */
-function SectionLabel({ marker, color, label }: { marker: string; color: string; label: string }) {
+
+function SectionLabel({ color, label }: { color: string; label: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-      <span style={{ fontSize: 10, fontWeight: 900, color: '#fff', background: color, borderRadius: 3, padding: '1px 5px' }}>{marker}</span>
-      <span style={{ fontSize: 10, fontWeight: 900, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</span>
+    <div style={{ borderLeft: `3px solid ${color}`, paddingLeft: 10, marginBottom: 14 }}>
+      <span style={{ fontSize: 12, fontWeight: 900, color: '#444', letterSpacing: '-0.01em' }}>{label}</span>
     </div>
   );
 }
@@ -122,60 +124,41 @@ function SectionLabel({ marker, color, label }: { marker: string; color: string;
 function StatBox({ label, value, sub, highlight }: { label: string; value: string; sub?: string; highlight?: boolean }) {
   return (
     <div style={{ borderRadius: 6, padding: '10px 12px', border: `1.5px solid ${highlight ? '#CC1100' : '#E0E0E0'}`, background: highlight ? '#FFF5F5' : '#fff' }}>
-      <div style={{ fontSize: 10, color: '#888', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#AAA', letterSpacing: '-0.01em', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 17, fontWeight: 900, color: highlight ? '#CC1100' : '#111', lineHeight: 1.2 }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: highlight ? '#CC1100' : '#888', marginTop: 2 }}>{sub}</div>}
     </div>
   );
 }
 
-function SafePointCard({ point }: { point: SafePoint }) {
-  const [open, setOpen] = useState(false);
+function SafePointItem({ point }: { point: SafePoint }) {
   return (
-    <div style={{ background: '#F0FAF8', border: '1.5px solid #B2DFDB', borderRadius: 8, overflow: 'hidden' }}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 10, padding: '11px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-      >
-        <span style={{ fontSize: 11, fontWeight: 900, color: '#009688', flexShrink: 0, marginTop: 1 }}>✓</span>
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: '#0D3D35', lineHeight: 1.55 }}>{point.text}</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#009688" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
-          {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
-        </svg>
-      </button>
-      {open && (
-        <p style={{ fontSize: 12, color: '#334', lineHeight: 1.55, padding: '0 14px 12px 33px', margin: 0 }}>{point.detail}</p>
-      )}
+    <div style={{ paddingBottom: 16 }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: '#0D3D35', lineHeight: 1.5, marginBottom: 5 }}>{point.text}</div>
+      <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6, margin: 0, letterSpacing: '-0.01em' }}>{point.detail}</p>
     </div>
   );
 }
 
-function RiskFactorCard({ factor }: { factor: { level: string; title: string; description: string; action: string } }) {
-  const [open, setOpen] = useState(false);
-  const color = factor.level === 'red' ? '#CC1100' : factor.level === 'yellow' ? '#E6A000' : '#009688';
-  const bg    = factor.level === 'red' ? '#FFF5F5' : factor.level === 'yellow' ? '#FFFBF0' : '#F0FAFA';
+function RiskFactorItem({ factor }: { factor: { level: string; title: string; description: string; action: string } }) {
+  const [open, setOpen] = useState(true);
+  const color = factor.level === 'red' ? '#CC1100' : '#C07000';
 
   return (
-    <div style={{ border: `1.5px solid ${color}`, borderRadius: 8, overflow: 'hidden' }}>
+    <div style={{ paddingBottom: 16 }}>
       <button
         onClick={() => setOpen(v => !v)}
-        style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 10, padding: '11px 14px', background: bg, border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        style={{ width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', gap: 8 }}
       >
-        <span style={{ fontSize: 11, fontWeight: 900, color, flexShrink: 0, marginTop: 1 }}>
-          {factor.level === 'red' ? '!' : '⚠'}
-        </span>
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.55 }}>{factor.title}</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.5, letterSpacing: '-0.01em' }}>{factor.title}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#BBBBBB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 3 }}>
           {open ? <path d="M18 15l-6-6-6 6" /> : <path d="M6 9l6 6 6-6" />}
         </svg>
       </button>
       {open && (
-        <div style={{ padding: '12px 14px 14px', background: '#fff', borderTop: `1px solid ${color}33` }}>
-          <p style={{ fontSize: 13, color: '#333', lineHeight: 1.65, margin: '0 0 12px' }}>{factor.description}</p>
-          <div style={{ background: `${color}11`, borderRadius: 6, padding: '10px 12px' }}>
-            <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color, marginBottom: 4 }}>지금 해야 할 일</div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#111', lineHeight: 1.65, margin: 0 }}>{factor.action}</p>
-          </div>
+        <div style={{ marginTop: 8 }}>
+          <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6, margin: '0 0 8px', letterSpacing: '-0.01em' }}>{factor.description}</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: color, lineHeight: 1.6, margin: 0, letterSpacing: '-0.01em' }}>{factor.action}</p>
         </div>
       )}
     </div>
@@ -188,14 +171,14 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
   const pending   = DANGER_ITEMS.filter(item => !checkedIds.has(item.id));
   const checkedCount = checkedIds.size;
   const pct = totalChecks > 0 ? Math.round((checkedCount / totalChecks) * 100) : 0;
-  const barColor = pct >= 80 ? '#009688' : pct >= 40 ? '#E6A000' : checkedCount === 0 ? '#999' : '#CC1100';
+  const barColor = pct >= 80 ? '#333' : pct >= 40 ? '#666' : '#999';
 
   return (
     <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* 진행 요약 */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#888' }}>체크리스트 진행</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: '-0.01em' }}>체크리스트 진행</span>
           <span style={{ fontSize: 11, fontWeight: 900, color: '#111' }}>{checkedCount} / {totalChecks}개 · {pct}%</span>
         </div>
         <div style={{ height: 4, background: '#EBEBEB', borderRadius: 999, overflow: 'hidden' }}>
@@ -203,46 +186,36 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
         </div>
       </div>
 
-      {/* 확인 완료 */}
-      {confirmed.length > 0 && (
+      {/* 미확인 — 더 자세히 체크 */}
+      {pending.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, fontWeight: 900, color: '#009688', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
-            확인 완료 — 안전 확보 {confirmed.length}가지
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {confirmed.map(item => (
-              <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <span style={{ fontSize: 11, color: '#009688', fontWeight: 900, flexShrink: 0, marginTop: 1 }}>✓</span>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.55 }}>
-                    {CHECKLIST_LABEL[item.id] ?? item.q}
-                  </div>
-                  <p style={{ fontSize: 11, color: '#666', lineHeight: 1.6, margin: '2px 0 0' }}>
-                    {CHECKED_SAFETY_MEANING[item.id] ?? item.whyItMatters}
-                  </p>
+          <SectionLabel color="#CC1100" label={`계약을 위해 더 자세히 체크해 보아요 — ${pending.length}가지`} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {pending.map(item => (
+              <div key={item.id} style={{ paddingBottom: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.5, marginBottom: 4, letterSpacing: '-0.01em' }}>
+                  {CHECKLIST_LABEL[item.id] ?? item.q}
                 </div>
+                <p style={{ fontSize: 12, color: '#666', lineHeight: 1.6, margin: 0, letterSpacing: '-0.01em' }}>{item.consequence}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* 미확인 항목 */}
-      {pending.length > 0 && (
+      {/* 확인 완료 — 이 항목들이 안전한 이유 */}
+      {confirmed.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, fontWeight: 900, color: '#CC1100', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
-            미확인 — 핵심 항목 {pending.length}가지
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {pending.map(item => (
-              <div key={item.id} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <span style={{ fontSize: 11, color: '#CC1100', fontWeight: 900, flexShrink: 0, marginTop: 1 }}>·</span>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#333', lineHeight: 1.55 }}>
-                    {CHECKLIST_LABEL[item.id] ?? item.q}
-                  </div>
-                  <p style={{ fontSize: 11, color: '#888', lineHeight: 1.6, margin: '2px 0 0' }}>{item.consequence}</p>
+          <SectionLabel color="#009688" label={`이 항목들이 이 집을 안전하게 만드는 이유 — ${confirmed.length}가지`} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {confirmed.map(item => (
+              <div key={item.id} style={{ paddingBottom: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#111', lineHeight: 1.5, marginBottom: 4, letterSpacing: '-0.01em' }}>
+                  {CHECKLIST_LABEL[item.id] ?? item.q}
                 </div>
+                <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6, margin: 0, letterSpacing: '-0.01em' }}>
+                  {CHECKED_SAFETY_MEANING[item.id] ?? item.whyItMatters}
+                </p>
               </div>
             ))}
           </div>
@@ -251,14 +224,14 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
 
       {/* 수치 분석 안내 */}
       <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 16 }}>
-        <p style={{ fontSize: 12, color: '#888', lineHeight: 1.55, margin: '0 0 10px' }}>
+        <p style={{ fontSize: 12, color: '#888', lineHeight: 1.55, margin: '0 0 10px', letterSpacing: '-0.01em' }}>
           체크리스트 2단계에서 <b style={{ color: '#333' }}>주소 · 보증금 · 계약월</b>을 입력하면
           주변 실거래가 기반 시세 비교와 전세가율 분석이 추가됩니다.
         </p>
         {onBackToGuide && (
           <button
             onClick={onBackToGuide}
-            style={{ fontSize: 12, fontWeight: 800, color: '#009688', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            style={{ fontSize: 12, fontWeight: 800, color: '#009688', background: 'none', border: 'none', padding: 0, cursor: 'pointer', letterSpacing: '-0.01em' }}
           >
             체크리스트로 가서 입력하기 →
           </button>
@@ -280,9 +253,9 @@ export default function RiskResultCard({
   if (status === 'loading') {
     return (
       <div style={{ background: '#fff', border: '2px solid #E0E0E0', borderRadius: 12, padding: 32, textAlign: 'center' }}>
-        <div style={{ width: 36, height: 36, border: '3px solid #009688', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
-        <p style={{ fontSize: 13, fontWeight: 700, color: '#555', marginBottom: 4 }}>국토교통부 실거래가 조회 중…</p>
-        <p style={{ fontSize: 11, color: '#888' }}>최근 4개월 데이터를 분석합니다.</p>
+        <div style={{ width: 36, height: 36, border: '3px solid #999', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', margin: '0 auto 14px' }} />
+        <p style={{ fontSize: 13, fontWeight: 700, color: '#555', marginBottom: 4, letterSpacing: '-0.01em' }}>국토교통부 실거래가 조회 중…</p>
+        <p style={{ fontSize: 11, color: '#888', letterSpacing: '-0.01em' }}>최근 4개월 데이터를 분석합니다.</p>
       </div>
     );
   }
@@ -290,8 +263,8 @@ export default function RiskResultCard({
   if (status === 'error') {
     return (
       <div style={{ background: '#FFF5F5', border: '2px solid #CC1100', borderRadius: 12, padding: 20 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: '#CC1100', marginBottom: 4 }}>실거래가 조회에 실패했습니다.</p>
-        <p style={{ fontSize: 12, color: '#CC1100' }}>{errorMessage || '잠시 후 다시 시도하거나 API 키를 확인해주세요.'}</p>
+        <p style={{ fontSize: 13, fontWeight: 700, color: '#CC1100', marginBottom: 4, letterSpacing: '-0.01em' }}>실거래가 조회에 실패했습니다.</p>
+        <p style={{ fontSize: 12, color: '#CC1100', letterSpacing: '-0.01em' }}>{errorMessage || '잠시 후 다시 시도하거나 API 키를 확인해주세요.'}</p>
       </div>
     );
   }
@@ -301,8 +274,8 @@ export default function RiskResultCard({
     return (
       <div style={{ border: '2px solid #E0E0E0', borderRadius: 12, overflow: 'hidden', background: '#fff' }}>
         <div style={{ padding: '14px 16px 12px', background: '#F8F8F8', borderBottom: '2px solid #E0E0E0' }}>
-          <div style={{ fontSize: 10, fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>수치 분석 전 · 체크리스트 기준</div>
-          <h2 style={{ fontSize: 15, fontWeight: 900, color: '#111', margin: 0 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: '-0.01em', marginBottom: 4 }}>수치 분석 전 · 체크리스트 기준</div>
+          <h2 style={{ fontSize: 15, fontWeight: 900, color: '#111', margin: 0, letterSpacing: '-0.02em' }}>
             {checkedCount === 0 ? '체크리스트를 시작하면 분석이 여기에 쌓입니다' : `${checkedCount}개 항목 확인 완료 — 핵심 항목 점검 현황`}
           </h2>
         </div>
@@ -329,81 +302,76 @@ export default function RiskResultCard({
 
   const safePoints = buildSafePoints(result);
   const refMedian = result.jeonseCount >= 3 ? result.medianJeonseDeposit : result.medianAllDeposit;
-
   const levelLabel = isSafe ? '안전' : isYellow ? '주의' : isRed ? '위험' : '자료 부족';
 
   return (
     <div style={{ border: `2px solid ${border}`, borderRadius: 12, overflow: 'hidden' }}>
 
-      {/* 헤더 — 위험도 표지판 없이 텍스트만 */}
+      {/* 헤더 */}
       <div style={{ padding: '16px 18px', background: bg, borderBottom: `2px solid ${border}` }}>
-        <div style={{ fontSize: 10, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: border, marginBottom: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '-0.01em', color: border, marginBottom: 6 }}>
           분석 결과 · {levelLabel}
           {result.status === 'noData' && <span style={{ marginLeft: 8, fontWeight: 700, color: '#999' }}>— 실거래 데이터 부족</span>}
         </div>
-        <h2 style={{ fontSize: 16, fontWeight: 900, color: '#111', lineHeight: 1.35, margin: '0 0 8px' }}>{result.riskTitle}</h2>
-        <p style={{ fontSize: 12, color: '#555', lineHeight: 1.55, margin: 0 }}>{result.riskMessage}</p>
+        <h2 style={{ fontSize: 16, fontWeight: 900, color: '#111', lineHeight: 1.35, margin: '0 0 8px', letterSpacing: '-0.02em' }}>{result.riskTitle}</h2>
+        <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6, margin: 0, letterSpacing: '-0.01em' }}>{result.riskMessage}</p>
       </div>
 
-      {/* 안전하다고 볼 수 있는 근거 (blue) */}
+      {/* 안전 — 이 집이 안전한 편인 근거 */}
       {isSafe && safePoints.length > 0 && (
-        <div style={{ padding: 16, borderBottom: '1px solid #E0E0E0', background: '#fff' }}>
-          <SectionLabel marker="✓" color="#009688" label="안전하다고 볼 수 있는 근거" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {safePoints.map((pt, i) => <SafePointCard key={i} point={pt} />)}
-          </div>
+        <div style={{ padding: '18px 18px 4px' }}>
+          <SectionLabel color="#009688" label="이 집이 안전한 편이라고 볼 수 있는 근거" />
+          {safePoints.map((pt, i) => <SafePointItem key={i} point={pt} />)}
         </div>
       )}
 
-      {/* 안전한 편이라고 볼 수 있는 근거 + 주의가 필요한 이유 (yellow) */}
+      {/* 주의 — 위험 요인 → 구분선 → 안전한 근거 */}
       {isYellow && (
-        <>
+        <div style={{ padding: '18px 18px 4px' }}>
           {result.riskFactors.length > 0 && (
-            <div style={{ padding: 16, borderBottom: '1px solid #E0E0E0', background: '#fff' }}>
-              <SectionLabel marker="⚠" color="#E6A000" label={`주의가 필요한 이유 ${result.riskFactors.length}가지`} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {result.riskFactors.map(f => <RiskFactorCard key={f.id} factor={f} />)}
-              </div>
-            </div>
+            <>
+              <SectionLabel color="#E6A000" label={`계약을 위해 더 자세히 체크해 보아요 — ${result.riskFactors.length}가지`} />
+              {result.riskFactors.map(f => <RiskFactorItem key={f.id} factor={f} />)}
+            </>
+          )}
+          {result.riskFactors.length > 0 && safePoints.length > 0 && (
+            <div style={{ borderTop: '1px solid #E8E8E8', margin: '4px 0 18px' }} />
           )}
           {safePoints.length > 0 && (
-            <div style={{ padding: 16, borderBottom: '1px solid #E0E0E0', background: '#fff' }}>
-              <SectionLabel marker="·" color="#888" label="안전한 편이라고 볼 수 있는 근거" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {safePoints.map((pt, i) => <SafePointCard key={i} point={pt} />)}
-              </div>
-            </div>
+            <>
+              <SectionLabel color="#888" label="그래도 안전한 편이라고 볼 수 있는 근거" />
+              {safePoints.map((pt, i) => <SafePointItem key={i} point={pt} />)}
+            </>
           )}
-        </>
+        </div>
       )}
 
-      {/* 위험하다고 판단한 이유 (red) */}
+      {/* 위험 — 위험 요인 → 구분선 → 그나마 다행인 부분 */}
       {isRed && (
-        <>
+        <div style={{ padding: '18px 18px 4px' }}>
           {result.riskFactors.length > 0 && (
-            <div style={{ padding: 16, borderBottom: '1px solid #E0E0E0', background: '#fff' }}>
-              <SectionLabel marker="!" color="#CC1100" label={`위험하다고 판단한 이유 ${result.riskFactors.length}가지`} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {result.riskFactors.map(f => <RiskFactorCard key={f.id} factor={f} />)}
-              </div>
-            </div>
+            <>
+              <SectionLabel color="#CC1100" label={`위험하다고 판단한 이유 — ${result.riskFactors.length}가지`} />
+              {result.riskFactors.map(f => <RiskFactorItem key={f.id} factor={f} />)}
+            </>
+          )}
+          {result.riskFactors.length > 0 && safePoints.length > 0 && (
+            <div style={{ borderTop: '1px solid #E8E8E8', margin: '4px 0 18px' }} />
           )}
           {safePoints.length > 0 && (
-            <div style={{ padding: 16, borderBottom: '1px solid #E0E0E0', background: '#fff' }}>
-              <SectionLabel marker="·" color="#888" label="그나마 다행인 부분" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {safePoints.map((pt, i) => <SafePointCard key={i} point={pt} />)}
-              </div>
-            </div>
+            <>
+              <SectionLabel color="#888" label="그나마 다행인 부분" />
+              {safePoints.map((pt, i) => <SafePointItem key={i} point={pt} />)}
+            </>
           )}
-        </>
+        </div>
       )}
 
       {/* 핵심 수치 */}
       {result.status === 'success' && (
-        <div style={{ padding: 16, borderBottom: '1px solid #E0E0E0', background: '#fff' }}>
-          <SectionLabel marker="수치" color="#555" label="분석에 사용된 핵심 수치" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ padding: '18px 18px 4px', background: '#FAFAFA' }}>
+          <SectionLabel color="#BBBBBB" label="분석에 사용된 핵심 수치" />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
             <StatBox label="내 보증금" value={formatWon(result.userDeposit)} />
             <StatBox
               label={result.jeonseCount >= 3 ? `주변 전세 중앙값 (${result.jeonseCount}건)` : `주변 전체 중앙값 (${result.transactionCount}건)`}
@@ -430,25 +398,22 @@ export default function RiskResultCard({
       )}
 
       {/* 이 결과가 나온 근거 */}
-      <div style={{ padding: 16, background: '#fff' }}>
-        <SectionLabel marker="근거" color="#777" label="이 결과가 나온 근거" />
-        <ul style={{ listStyle: 'none', margin: '0 0 8px', background: '#FAFAFA', borderRadius: 8, padding: '12px 14px', border: '1px solid #E8E8E8', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ padding: '18px 18px 16px', background: '#F5F5F5' }}>
+        <SectionLabel color="#BBBBBB" label="이 결과가 나온 근거" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {result.reasonSummary.map((r, i) => (
-            <li key={i} style={{ display: 'flex', gap: 8, fontSize: 12, color: '#555', lineHeight: 1.55 }}>
-              <span style={{ color: '#bbb', flexShrink: 0 }}>·</span>
-              <span>{r}</span>
-            </li>
+            <p key={i} style={{ fontSize: 12, color: '#555', lineHeight: 1.6, margin: 0, letterSpacing: '-0.01em' }}>{r}</p>
           ))}
-        </ul>
+        </div>
         {result.searchedMonths.length > 0 && (
-          <p style={{ fontSize: 11, color: '#bbb', marginTop: 6, marginBottom: 0 }}>
+          <p style={{ fontSize: 11, color: '#BBBBBB', marginTop: 10, marginBottom: 0, letterSpacing: '-0.01em' }}>
             조회 기간: {result.searchedMonths.map(m => formatYm(m)).join(' / ')} · 거래 {result.transactionCount}건
           </p>
         )}
         {onBackToGuide && (
-          <p style={{ fontSize: 11, color: '#888', marginTop: 10, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 11, color: '#888', marginTop: 10, lineHeight: 1.6, letterSpacing: '-0.01em' }}>
             계약 전 추가 확인 목록과 질문·특약 예시는 체크리스트 화면의 <b>부록</b>에서 확인하세요.{' '}
-            <button onClick={onBackToGuide} style={{ color: '#009688', fontWeight: 800, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit' }}>
+            <button onClick={onBackToGuide} style={{ color: '#555', fontWeight: 800, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 'inherit', letterSpacing: '-0.01em' }}>
               체크리스트로 →
             </button>
           </p>

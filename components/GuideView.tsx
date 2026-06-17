@@ -31,7 +31,7 @@ function HeroSection() {
       <h1 style={{ fontSize: 32, fontWeight: 900, color: '#111', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: 24, wordBreak: 'keep-all' }}>
         처음으로 집 살 때<br />사기 안당하는<br />체크리스트
       </h1>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
         {[
           '처음 전세 계약을 앞두고 무엇부터 확인해야 할지 모르는 분들을 위해 만들었습니다.',
           '등기부등본 확인부터 전입신고까지, 계약 전 꼭 챙겨야 할 항목을 7단계 21개로 정리했습니다.',
@@ -39,7 +39,7 @@ function HeroSection() {
           '집 정보를 처음 접하는 분도 따라갈 수 있도록 각 항목마다 이유와 방법을 함께 적었습니다.',
           '공인중개사의 조언을 받아 실제 전세사기 사례를 바탕으로 제작되었습니다.',
         ].map((t, i) => (
-          <p key={i} style={{ fontSize: 12, color: '#999', margin: 0, wordBreak: 'keep-all', letterSpacing: '-0.005em' }}>{t}</p>
+          <p key={i} style={{ fontSize: 12, color: '#999', margin: 0, wordBreak: 'keep-all', letterSpacing: '-0.01em', lineHeight: 1.5 }}>{t}</p>
         ))}
       </div>
     </div>
@@ -189,7 +189,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 
           {/* 결과 설명 */}
           <div style={{ padding: '14px 18px', borderBottom: '1px dashed #E8E8E8', background: isDone ? '#F5F5F5' : '#FAFAFA' }}>
-            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', marginBottom: 6 }}>
+            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '-0.01em', color: '#888', marginBottom: 6 }}>
               미확인 시 위험
             </div>
             <p style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.7, wordBreak: 'keep-all', color: '#222', marginBottom: check.whyItMatters ? 10 : 0 }}>
@@ -197,7 +197,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
             </p>
             {check.whyItMatters && (
               <>
-                <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', marginBottom: 6, marginTop: 2 }}>
+                <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: '-0.01em', color: '#888', marginBottom: 6, marginTop: 2 }}>
                   이 항목을 해야 하는 이유
                 </div>
                 <p style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.7, wordBreak: 'keep-all', color: '#555' }}>
@@ -210,7 +210,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
           {/* 계산기 */}
           {calcRenderer && (
             <div style={{ padding: '14px 16px', borderBottom: '1px dashed #E8E8E8' }}>
-              <div style={{ fontSize: 10, fontWeight: 900, color: GREEN, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 10, fontWeight: 900, color: '#555', letterSpacing: '-0.01em', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span>계산</span>
                 {isSkipped && (
                   <span style={{ fontSize: 10, fontWeight: 900, color: '#888', background: '#F0F0F0', borderRadius: 4, padding: '3px 8px', letterSpacing: 0 }}>정보 없이 건너뜀</span>
@@ -222,7 +222,7 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
 
           {/* 할 일 */}
           <div style={{ padding: '16px 18px' }}>
-            <div style={{ fontSize: 10, fontWeight: 900, color: '#111', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
+            <div style={{ fontSize: 10, fontWeight: 900, color: '#111', letterSpacing: '-0.01em', marginBottom: 12 }}>
               지금 할 일
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -271,11 +271,9 @@ function CheckCard({ check, confirmed, onToggle, skipped, onToggleSkip, calcProp
                       <p style={{ fontSize: 14, fontWeight: 600, color: adone ? '#888' : '#111', lineHeight: 1.65, transition: 'all .15s' }}>
                         {a.text}
                       </p>
-                      {adone && (
-                        <p style={{ fontSize: 12, color: '#888', lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: '1px dashed #D0D0D0' }}>
-                          {a.why}
-                        </p>
-                      )}
+                      <p style={{ fontSize: 12, color: '#999', lineHeight: 1.6, marginTop: 5, paddingTop: 5, borderTop: '1px dashed #EBEBEB' }}>
+                        {a.why}
+                      </p>
                     </div>
                   </div>
                 );
@@ -349,6 +347,53 @@ export default function GuideView({
   const [openCardId, setOpenCardId] = useState<string | null>(null);
   const [activeStep, setActiveStep]  = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 계산기 자동 체크 — ref로 stale closure 방지
+  const confirmedRef = useRef(confirmed);
+  confirmedRef.current = confirmed;
+  const onToggleRef = useRef(onToggle);
+  onToggleRef.current = onToggle;
+
+  // s2i0: 시세 비교 조회 완료 시 자동 체크
+  const prevAnalysisStatusRef = useRef<AnalysisStatus>(analysisStatus);
+  useEffect(() => {
+    const prev = prevAnalysisStatusRef.current;
+    prevAnalysisStatusRef.current = analysisStatus;
+    if ((analysisStatus === 'success' || analysisStatus === 'noData') && prev === 'loading' && !confirmedRef.current.has('s2i0')) {
+      onToggleRef.current('s2i0');
+    }
+  }, [analysisStatus]);
+
+  // s2i2: 집값 처음 입력 시 자동 체크
+  const prevHousePriceRef = useRef(form.housePrice);
+  useEffect(() => {
+    if (form.housePrice && !prevHousePriceRef.current && !confirmedRef.current.has('s2i2')) {
+      onToggleRef.current('s2i2');
+    }
+    prevHousePriceRef.current = form.housePrice;
+  }, [form.housePrice]);
+
+  // s2i1: 전세가율 계산 가능해질 때(보증금+집값 모두 입력) 자동 체크
+  const prevRatioReadyRef = useRef(!!(form.deposit && form.housePrice));
+  useEffect(() => {
+    const ready = !!(form.deposit && form.housePrice);
+    if (ready && !prevRatioReadyRef.current && !confirmedRef.current.has('s2i1')) {
+      onToggleRef.current('s2i1');
+    }
+    prevRatioReadyRef.current = ready;
+  }, [form.deposit, form.housePrice]);
+
+  // s3i1: 근저당 계산 가능해질 때 자동 체크
+  const prevMortgageReadyRef = useRef(
+    !!((form.hasMortgage === false || form.mortgageAmount != null) && form.deposit && form.housePrice)
+  );
+  useEffect(() => {
+    const ready = !!((form.hasMortgage === false || form.mortgageAmount != null) && form.deposit && form.housePrice);
+    if (ready && !prevMortgageReadyRef.current && !confirmedRef.current.has('s3i1')) {
+      onToggleRef.current('s3i1');
+    }
+    prevMortgageReadyRef.current = ready;
+  }, [form.mortgageAmount, form.hasMortgage, form.deposit, form.housePrice]);
 
   useEffect(() => {
     const container = scrollRef.current;
