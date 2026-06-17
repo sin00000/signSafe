@@ -18,6 +18,20 @@ interface Props {
 /* ── idle 분석용 상수 ────────────────────────── */
 const DANGER_ITEMS = CHECK_ITEMS.filter(c => c.risk === 'danger');
 
+const CHECKLIST_LABEL: Record<string, string> = {
+  s0i0: '집 직접 방문 확인',
+  s0i2: '주거용 건물 여부 확인',
+  s1i0: '집주인 신원 대조 확인',
+  s2i1: '전세가율 70% 이하 확인',
+  s3i0: '계약 당일 등기부등본 재발급 확인',
+  s3i1: '근저당(채권최고액) 확인',
+  s3i2: '압류·처분금지 없음 확인',
+  s4i0: '전세보증보험 가입 가능 여부 확인',
+  s5i0: '계약서 불리한 특약 없음 확인',
+  s6i0: '이사 당일 전입신고 완료',
+  s6i1: '확정일자 취득 완료',
+};
+
 const CHECKED_SAFETY_MEANING: Record<string, string> = {
   s0i0: '실제로 존재하는 집을 직접 확인했습니다. 허위 매물에 계약금을 날리는 1차 위험을 차단했습니다.',
   s0i2: '주택임대차보호법 보호 대상인 건물임을 확인했습니다. 전세보증보험 가입이 가능한 조건을 갖췄습니다.',
@@ -195,11 +209,18 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
           <SectionLabel marker="✓" color="#009688" label={`확인 완료 — 안전 확보 ${confirmed.length}가지`} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {confirmed.map(item => (
-              <div key={item.id} style={{ background: '#F0FAF8', border: '1.5px solid #B2DFDB', borderRadius: 8, padding: '10px 14px' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: '#0D3D35', marginBottom: 3, lineHeight: '18pt' }}>{item.q}</div>
-                <p style={{ fontSize: 11, color: '#4A7A70', lineHeight: '18pt', margin: 0 }}>
-                  {CHECKED_SAFETY_MEANING[item.id] ?? item.whyItMatters}
-                </p>
+              <div key={item.id} style={{ background: '#F0FAF8', border: '1.5px solid #B2DFDB', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <div style={{ width: 18, height: 18, borderRadius: 4, background: '#009688', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0D3D35', marginBottom: 3, lineHeight: '18pt' }}>
+                    {CHECKLIST_LABEL[item.id] ?? item.q}
+                  </div>
+                  <p style={{ fontSize: 11, color: '#4A7A70', lineHeight: '18pt', margin: 0 }}>
+                    {CHECKED_SAFETY_MEANING[item.id] ?? item.whyItMatters}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -212,9 +233,14 @@ function ChecklistAnalysis({ checkedIds, totalChecks, onBackToGuide }: { checked
           <SectionLabel marker="!" color="#CC1100" label={`미확인 — 핵심 항목 ${pending.length}가지`} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {pending.map(item => (
-              <div key={item.id} style={{ background: '#FFF8F7', border: '1.5px solid #FFCDD2', borderRadius: 8, padding: '10px 14px' }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: '#333', marginBottom: 3, lineHeight: '18pt' }}>{item.q}</div>
-                <p style={{ fontSize: 11, color: '#B03000', lineHeight: '18pt', margin: 0 }}>{item.consequence}</p>
+              <div key={item.id} style={{ background: '#FFF8F7', border: '1.5px solid #FFCDD2', borderRadius: 8, padding: '10px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <div style={{ width: 18, height: 18, borderRadius: 4, border: '1.5px solid #FFAAA0', flexShrink: 0, background: '#fff', marginTop: 1 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#333', marginBottom: 3, lineHeight: '18pt' }}>
+                    {CHECKLIST_LABEL[item.id] ?? item.q}
+                  </div>
+                  <p style={{ fontSize: 11, color: '#B03000', lineHeight: '18pt', margin: 0 }}>{item.consequence}</p>
+                </div>
               </div>
             ))}
           </div>
